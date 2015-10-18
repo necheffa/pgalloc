@@ -138,11 +138,7 @@ void *pgalloc(size_t bytes) {
         return ((PageHeader *)page)->avl;
 
     } else {
-        // update existing page
-        //
-        // after doing an allocation
-        // we should check if there is any free space left
-        // and handle accordingly so that pages[index] != NULL guarentees free blocks
+
         unsigned int remainingBlocks = blocksLeft(page);
 
         if (remainingBlocks > 2) {
@@ -158,7 +154,10 @@ void *pgalloc(size_t bytes) {
             ((PageHeader *)page)->blocksUsed++;
             ((PageHeader *)page)->avl -= ((PageHeader *)page)->blockSize;
 
-            //TODO: add page to fullPages list
+            addFullPages(page);
+
+            // set pointer in pages to NULL so that
+            // next call to pgalloc gets new page
             pages[index] = NULL;
 
             return ((PageHeader *)page)->avl;
