@@ -7,6 +7,9 @@
 
 typedef struct PageHeader PageHeader;
 
+static void addFullList(void *);
+static void *removeFullList(void *);
+
 struct PageHeader {
     unsigned int blockSize;
     unsigned int blocksUsed;
@@ -154,7 +157,7 @@ void *pgalloc(size_t bytes) {
             ((PageHeader *)page)->blocksUsed++;
             ((PageHeader *)page)->avl -= ((PageHeader *)page)->blockSize;
 
-            addFullPages(page);
+            addFullList(page);
 
             // set pointer in pages to NULL so that
             // next call to pgalloc gets new page
