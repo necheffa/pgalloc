@@ -190,27 +190,34 @@ void pgview(void) {
     }
 }
 
-static void addFreeList(void *page) {
+static void addFullList(void *page) {
 
-    if (freeList == NULL) {
-        freeList = page;
+    if (fullPages == NULL) {
+        fullPages = page;
     } else {
         //unsigned long saddr = (void *)(((unsigned long) *freeList) & pageMask);
-        PageHeader *prevPage = ((PageHeader *)freeList)->prevPage;
+        PageHeader *prevPage = ((PageHeader *)fullPages)->prevPage;
         PageHeader *ph = (PageHeader *)page;
 
         prevPage->nextPage = page;
         ph->prevPage = prevPage;
-        ph->nextPage = freeList;
-        ((PageHeader *)freeList)->prevPage = page;
+        ph->nextPage = fullPages;
+        ((PageHeader *)fullPages)->prevPage = page;
     }
 }
 
-static void *removeFreeList(void *ptr) {
+static void *removeFullList(void *ptr) {
 
     void *page = (void *)(((unsigned long) ptr) & pageMask);
-    ((PageHeader *)page)->((PageHeader *)prevPage)->nextPage = ((PageHeader *)page)->next;
-    ((PageHeader *)page)->((PageHeader *)nextPage)->prevPage = ((PageHeader *)page)->prev;
+    // can't be bothered to sort out operator precedence
+    PageHeader *ph = (PageHeader *)page;
+    PageHeader *nph = (PageHeader *)ph->nextPage;
+    PageHeader *pph = (PageHeader *)ph->prevPage;
+    //((PageHeader *)page)->((PageHeader *)prevPage)->nextPage = ((PageHeader *)page)->nextPage;
+    //((PageHeader *)page)->((PageHeader *)nextPage)->prevPage = ((PageHeader *)page)->prevPage;
+    nph->prevPage = ph->prevPage;
+    pph->nextPage = ph->nextPage;
+
 
     return page;
 }
