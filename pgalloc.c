@@ -72,9 +72,9 @@ void pgfree(void *ptr) {
     //TODO: handle adding page back into pages[]
     //  if page was originally moved out as full
 
-    if (ptr->freeList) {
+    if (ph->freeList) {
         // insert newly free'd block at start of freeList
-        ptr = *(ph->freeList);
+        *((unsigned long *)ptr) = *((unsigned long *) (ph->freeList));
         ph->freeList = &ptr;
     } else {
         // first free on this page
