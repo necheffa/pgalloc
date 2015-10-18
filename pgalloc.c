@@ -69,9 +69,19 @@ void pgfree(void *ptr) {
     void *page = (void *)(((unsigned long) ptr) & pageMask);
     PageHeader *ph = (PageHeader *)page;
 
-    //TODO: handle case where freeList is not NULL
-    //      handle adding page back into pages[]
-    ph->freeList = ptr;
+    //TODO: handle adding page back into pages[]
+    //  if page was originally moved out as full
+
+    if (ptr->freeList) {
+        // insert newly free'd block at start of freeList
+        ptr = *(ph->freeList);
+        ph->freeList = &ptr;
+    } else {
+        // first free on this page
+        ptr = NULL;
+        ph->freeList = &ptr;
+    }
+
     (ph->blocksUsed)--;
 }
 
@@ -143,6 +153,15 @@ void *pgalloc(size_t bytes) {
     } else {
 
         unsigned int remainingBlocks = blocksLeft(page);
+
+        if (((PageHeader *)page)->freeList) {
+            // there are free blocks in the list
+            // TODO: use these instead
+
+            return ptr;
+        }
+
+        // page->freeList == NULL
 
         if (remainingBlocks > 2) {
             // add block to page
