@@ -74,12 +74,15 @@ void pgfree(void *ptr) {
 
     if (ph->freeList) {
         // insert newly free'd block at start of freeList
-        *((unsigned long *)ptr) = *((unsigned long *) (ph->freeList));
+        //*((unsigned long *)ptr) = *((unsigned long *) (ph->freeList));
+        ptr = ph->freeList;
         ph->freeList = &ptr;
+        printf("free list not NULL\n");
     } else {
         // first free on this page
         ptr = NULL;
         ph->freeList = &ptr;
+        printf("free list NULL\n");
     }
 
     (ph->blocksUsed)--;
@@ -178,9 +181,11 @@ void *pgalloc(size_t bytes) {
 
             addFullList(page);
 
-            // set pointer in pages to NULL so that
-            // next call to pgalloc gets new page
-            pages[index] = NULL;
+            /* will either be NULL or if there are
+             * partially free pages we'll start filling those
+             * before creating a whole new page
+             */
+            pages[index] = ((PageHeader *)page)->nextPage;
 
             return ((PageHeader *)page)->avl;
 
@@ -202,12 +207,49 @@ void pgview(void) {
 
     for (int i = 0; i < PAGES; i++) {
         PageHeader *ph = (PageHeader *)pages[i];
+        void *freeBlock;
 
         if (ph == NULL) {
             continue;
         }
+        freeBlock = ph->freeList;
 
-        printf("Page at[%p] size[%d] max[%d] used[%d] avl[%p]\n", ph, ph->blockSize, blocksPerPage(pages[i]), ph->blocksUsed, ph->avl);
+        printf("Page at[%p] size[%d] max[%d] used[%d] avl[%p]", ph, ph->blockSize, blocksPerPage(pages[i]), ph->blocksUsed, ph->avl);
+
+        if (ph->freeList) {
+
+            int i = 0;
+
+            printf(" free[");
+            while (freeBlock) {
+                printf("%#lx ", *((unsigned long *)freeBlock));
+
+                i++;
+
+                if (freeBlock == NULL) {
+                    break;
+                }
+
+                /*
+                unsigned long addr = *(unsigned long *)freeBlock;
+                freeBlock = (void *)addr;
+                */
+
+                //freeBlock = (void *) *freeBlock;
+
+                freeBlock = (void *) (unsigned long)freeBlock;
+
+                if (i >= 10) {
+                    // TODO: remove when testing done
+                    break;
+                }
+            }
+
+            printf("]\n");
+        } else {
+            printf(" free[]\n");
+        }
+
     }
 }
 

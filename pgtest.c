@@ -1,5 +1,6 @@
 #include "pgalloc.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 int main(void) {
 
@@ -8,6 +9,8 @@ int main(void) {
     char *test = pgalloc(13);
     char *test1 = "123456789\0";
     char *sp = str;
+
+    int *num[5];
 
     if (str == NULL) {
         printf("NULL\n");
@@ -22,11 +25,19 @@ int main(void) {
     printf("[%s]\n", str);
     printf("[%s]\n", test);
 
+    for (int i = 0; i < 5; i++) {
+        num[i] = (int *) pgalloc(sizeof(int));
+        *(num[i]) = rand();
+    }
+
 
     pgview();
 
     pgfree(str);
     pgfree(test);
+
+    pgfree(num[1]);
+    pgfree(num[2]);
 
     pgview();
 
