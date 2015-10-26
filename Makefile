@@ -1,5 +1,5 @@
 CC=/usr/bin/gcc
-CFLAGS=-std=c99
+CFLAGS=-std=c99 -g -Wall
 
 all:
 	$(CC) $(CFLAGS) -o test pgtest.c pgalloc.c

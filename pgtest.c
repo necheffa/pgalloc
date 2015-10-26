@@ -1,44 +1,70 @@
-#include "pgalloc.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
+
+#include "pgalloc.h"
+
+#define LEN 8
+
+// 20151024 - confirmed working with stdlib.h malloc() and free()
+
+typedef struct Node Node;
+
+struct Node {
+    int x;
+    int y;
+};
+
+static Node **nodes;
+
+static Node *newNode(int x, int y) {
+
+    Node *n = pgalloc(sizeof(*n));
+
+    n->x = x;
+    n->y = y;
+
+    return n;
+}
 
 int main(void) {
 
-    char *str = pgalloc(30);
-    char *str1 = "Hello World!\0";
-    char *test = pgalloc(13);
-    char *test1 = "123456789\0";
-    char *sp = str;
-
-    int *num[5];
-
-    if (str == NULL) {
-        printf("NULL\n");
-        return 0;
-    }
-
-    while(*sp++ = *str1++);
-
-    sp = test;
-    while(*sp++ = *test1++);
-
-    printf("[%s]\n", str);
-    printf("[%s]\n", test);
-
-    for (int i = 0; i < 5; i++) {
-        num[i] = (int *) pgalloc(sizeof(int));
-        *(num[i]) = rand();
-    }
-
-
+    //printf("DEBUG: initial pgview()\n");
     pgview();
 
-    pgfree(str);
-    pgfree(test);
+    nodes = pgalloc(sizeof(*nodes) * LEN);
 
-    pgfree(num[1]);
-    pgfree(num[2]);
+    for (int i = 0; i < LEN; i++) {
 
+        Node *n = newNode(i, (i+1));
+        nodes[i] = n;
+
+        //printf("DEBUG: node values [%d] [%d]\n", n->x, n->y);
+    }
+
+    //printf("DEBUG: pgview() after allocation\n");
+    pgview();
+
+    for (int i = 0; i < (LEN / 2); i++) {
+
+        Node *n = nodes[i];
+
+        if (n == NULL) {
+            printf("Node should not be NULL!\n");
+            fflush(stdout);
+            assert(n);
+        }
+
+        nodes[i] = NULL;
+        pgfree(n);
+        //printf("DEBUG: pgview() after individual pgfree(Node *)\n");
+        pgview();
+    }
+
+    //printf("DEBUG: pgview() after all pgfree(Node *)\n");
+    pgview();
+
+    Node *m = newNode(5,5);
     pgview();
 
     return 0;
