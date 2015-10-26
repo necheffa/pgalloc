@@ -188,8 +188,6 @@ void *pgalloc(size_t bytes) {
 
     } else {
 
-        //assert(NULL);
-
         unsigned int remainingBlocks = blocksLeft(page);
         PageHeader *ph = (PageHeader *)page;
 
@@ -208,10 +206,6 @@ void *pgalloc(size_t bytes) {
 
         if (remainingBlocks > 2) {
             // add block to page
-
-            //assert(NULL);
-
-            //PageHeader *ph = (PageHeader *)page;
 
             (ph->blocksUsed)++;
             (ph->avl) -= (ph->blockSize);
