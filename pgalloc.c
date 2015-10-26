@@ -204,7 +204,7 @@ void *pgalloc(size_t bytes) {
 
         // page->freeList == NULL
 
-        if (remainingBlocks > 2) {
+        if (remainingBlocks >= 2) {
             // add block to page
 
             (ph->blocksUsed)++;

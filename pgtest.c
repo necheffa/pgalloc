@@ -38,6 +38,8 @@ int main(void) {
         Node *n = newNode(i, (i+1));
         nodes[i] = n;
 
+        printf("alloc [%d]\n", i);
+
     }
 
     pgview();
