@@ -86,6 +86,8 @@ void pgfree(void *ptr) {
         // page was previously full; add into avl pages
         unsigned int i = getPageIndex(ph->blockSize);
 
+        printf("DEBUG: index [%d] for blocksize [%d]\n", i, (ph->blockSize));
+
         removeFullList(page);
 
         headPage = pages[i];
@@ -333,8 +335,12 @@ static void *removeFullList(void *page) {
     PageHeader *nph = (PageHeader *)ph->nextPage;
     PageHeader *pph = (PageHeader *)ph->prevPage;
 
-    nph->prevPage = ph->prevPage;
-    pph->nextPage = ph->nextPage;
+    if (nph != NULL && pph != NULL) {
+
+        nph->prevPage = ph->prevPage;
+        pph->nextPage = ph->nextPage;
+
+    }
 
     ph->prevPage = NULL;
     ph->nextPage = NULL;
