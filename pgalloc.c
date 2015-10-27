@@ -216,10 +216,8 @@ void *pgalloc(size_t bytes) {
 
             // need to move to a new page
 
-            ((PageHeader *)page)->blocksUsed++;
-            ((PageHeader *)page)->avl -= ((PageHeader *)page)->blockSize;
-
-            addFullList(page);
+            (ph->blocksUsed)++;
+            ph->avl -= ph->blockSize;
 
             /* will either be NULL or if there are
              * partially free pages we'll start filling those
@@ -227,10 +225,14 @@ void *pgalloc(size_t bytes) {
              */
             pages[index] = ((PageHeader *)page)->nextPage;
 
+            addFullList(page);
+
             return ((PageHeader *)page)->avl;
 
         } else {
             // should NEVER get here
+            fprintf(stderr, "remainingBlocks: [%d]\n", remainingBlocks);
+            fflush(NULL);
             assert(NULL);
         }
     }
@@ -242,8 +244,6 @@ void *pgalloc(size_t bytes) {
 }
 
 void pgview(void) {
-
-    printf("pgview\n");
 
     //TODO: add support for printing full pages
     //      add additional page info on part used pages
@@ -257,9 +257,6 @@ void pgview(void) {
         if (ph == NULL) {
             continue;
         }
-
-        printf("DEBUG: addr of freeList [%p]\n", (((PageHeader *)page)->freeList));
-        fflush(stdout);
 
         assert(ph);
         assert(page);
@@ -297,15 +294,36 @@ void pgview(void) {
 static void addFullList(void *page) {
 
     if (fullPages == NULL) {
+
+        PageHeader *ph = (PageHeader *)page;
+        ph->nextPage = NULL;
+        ph->prevPage = NULL;
+
         fullPages = page;
+
     } else {
-        PageHeader *prevPage = ((PageHeader *)fullPages)->prevPage;
+
+        PageHeader *headPage = (PageHeader *)fullPages;
+        PageHeader *prevPage = NULL;
         PageHeader *ph = (PageHeader *)page;
 
-        prevPage->nextPage = page;
-        ph->prevPage = prevPage;
-        ph->nextPage = fullPages;
-        ((PageHeader *)fullPages)->prevPage = page;
+        if ( (headPage->prevPage) == NULL ) {
+            // list only has a single page
+            headPage->nextPage = page;
+            headPage->prevPage = page;
+
+            ph->nextPage = fullPages;
+            ph->nextPage = fullPages;
+
+        } else {
+
+            prevPage = headPage->prevPage;
+
+            prevPage->nextPage = page;
+            ph->prevPage = prevPage;
+            ph->nextPage = fullPages;
+            headPage->prevPage = page;
+        }
     }
 }
 

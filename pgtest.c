@@ -11,18 +11,20 @@
 typedef struct Node Node;
 
 struct Node {
-    int x;
-    int y;
+    long a;
+    long b;
+    long c;
+    long d;
+    long e;
+    long f;
+    long g;
 };
 
 static Node **nodes;
 
-static Node *newNode(int x, int y) {
+static Node *newNode(void) {
 
     Node *n = pgalloc(sizeof(*n));
-
-    n->x = x;
-    n->y = y;
 
     return n;
 }
@@ -35,10 +37,11 @@ int main(void) {
 
     for (int i = 0; i < LEN; i++) {
 
-        Node *n = newNode(i, (i+1));
+        Node *n = newNode();
         nodes[i] = n;
 
-        printf("alloc [%d]\n", i);
+        pgview();
+        //printf("alloc [%d]\n", i);
 
     }
 
@@ -61,7 +64,7 @@ int main(void) {
 
     pgview();
 
-    Node *m = newNode(5,5);
+    Node *m = newNode();
     pgview();
 
     return 0;
