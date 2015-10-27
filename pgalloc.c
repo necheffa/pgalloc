@@ -34,9 +34,19 @@ static unsigned long pageMask = ~((unsigned long) (PAGE_SIZE - 1));
  */
 static unsigned int getPageIndex(unsigned int byteRequest) {
 
-    unsigned int i = byteRequest % BBLOCK_SIZE;
-    i = BBLOCK_SIZE - i + byteRequest;
-    i /= BBLOCK_SIZE;
+    unsigned int i = 0;
+
+    if ( (byteRequest % BBLOCK_SIZE) == 0 ) {
+
+        i = byteRequest / BBLOCK_SIZE;
+
+    } else {
+
+        i = byteRequest % BBLOCK_SIZE;
+        i = BBLOCK_SIZE - i + byteRequest;
+        i /= BBLOCK_SIZE;
+    }
+    // handle zero indexing
     i--;
 
     // we should always return a positive index
