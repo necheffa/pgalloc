@@ -14,6 +14,8 @@ typedef struct Node Node;
  * this will make my calculations a little easier
  * as I will only have to worry about 32 bit vs 64 bit word size
  * in my PageHeader, not the allocated blocks themselves
+ *
+ * 8 doubles * 8 bytes = 64
  */
 struct Node {
     double a;
@@ -36,7 +38,7 @@ static Node *newNode(void) {
 
 int main(void) {
 
-    printf("first\n");
+    printf("Initial pgview() before any allocation requests:\n");
     pgview();
     printf("\n");
 
@@ -46,13 +48,9 @@ int main(void) {
 
         Node *n = newNode();
         nodes[i] = n;
-
-        //pgview();
-        //printf("\n");
-
     }
 
-    printf("after alloc loop\n");
+    printf("pgview() after allocating an array and nodes:\n");
     pgview();
     printf("\n");
 
@@ -68,16 +66,14 @@ int main(void) {
 
         nodes[i] = NULL;
         pgfree(n);
-        //pgview();
-        //printf("\n");
     }
 
-    printf("after free loop\n");
+    printf("pgview() after freeing some nodes:\n");
     pgview();
     printf("\n");
 
     Node *m = newNode();
-    printf("after loose alloc\n");
+    printf("pgview() after allocating an additional node, should use previously freed block:\n");
     pgview();
     printf("\n");
 
