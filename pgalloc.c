@@ -78,11 +78,15 @@ static void *ALLIGNED_MALLOC(size_t size, size_t alignment) {
     if (page == NULL) {
         printf("ALLIGNED_MALLOC null page\n");
         fflush(stdout);
-        assert(NULL);
+        //assert(NULL);
     }
     return page;
 }
 
+/**
+ * marks the block referenced by ptr as
+ * available for allocation
+ */
 void pgfree(void *ptr) {
 
     // if free is passed a NULL pointer take no action
@@ -125,6 +129,10 @@ void pgfree(void *ptr) {
     (ph->blocksUsed)--;
 }
 
+/**
+ * gets a pointer to the page that holds the block
+ * referenced by ptr
+ */
 static void *getPage(void *ptr) {
 
     void *page = (void *) ((((unsigned long) ptr) & pageMask));
@@ -132,6 +140,9 @@ static void *getPage(void *ptr) {
     return page;
 }
 
+/**
+ * creates a new page using blocks of size blockSize
+ */
 static void *newPage(unsigned int blockSize) {
 
     void *page = ALLIGNED_MALLOC(PAGE_SIZE, PAGE_SIZE);
@@ -152,6 +163,10 @@ static void *newPage(unsigned int blockSize) {
     return page;
 }
 
+/**
+ * calculates how many blocks are available to be
+ * allocated in the referenced page
+ */
 static unsigned int blocksLeft(void *page) {
 
     unsigned int blockSize = ((PageHeader *)page)->blockSize;
@@ -160,6 +175,10 @@ static unsigned int blocksLeft(void *page) {
     return blocksPerPage - ((PageHeader *)page)->blocksUsed;
 }
 
+/**
+ * calculate the total blocks a particular page
+ * is able to hold
+ */
 static unsigned int blocksPerPage(void *page) {
 
     unsigned int blockSize = ((PageHeader *)page)->blockSize;
@@ -167,6 +186,10 @@ static unsigned int blocksPerPage(void *page) {
     return (PAGE_SIZE - sizeof(PageHeader)) / blockSize;
 }
 
+/**
+ * returns a ptr to a block able to hold
+ * the bytes requested or returns NULL on error
+ */
 void *pgalloc(size_t bytes) {
 
     void *page = NULL;
@@ -214,8 +237,6 @@ void *pgalloc(size_t bytes) {
             return ptr;
         }
 
-        // page->freeList == NULL
-
         if (remainingBlocks >= 2) {
             // add block to page
 
@@ -252,13 +273,14 @@ void *pgalloc(size_t bytes) {
 
     // should NEVER get here
     assert(NULL);
-    return ptr;
+    return NULL;
 }
 
+/**
+ * used to view the state of allocated pages
+ * mainly for debugging purposes
+ */
 void pgview(void) {
-
-    //TODO: add support for printing full pages
-    //      add additional page info on part used pages
 
     void *curFullPage = fullPages;
 
@@ -330,6 +352,9 @@ void pgview(void) {
     }
 }
 
+/**
+ * adds full pages to the fullPages list
+ */
 static void addFullList(void *page) {
 
     //TODO: clean up - consolidate wasteful declarations
@@ -372,6 +397,10 @@ static void addFullList(void *page) {
 
 }
 
+/**
+ * removes pages from the fullPages list
+ * typically when a full page has blocks freed
+ */
 static void *removeFullList(void *page) {
 
     PageHeader *ph = (PageHeader *)page;

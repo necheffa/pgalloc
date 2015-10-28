@@ -10,14 +10,19 @@
 
 typedef struct Node Node;
 
+/* use doubles because IEEE 754 guarantees a 64 bit size
+ * this will make my calculations a little easier
+ * as I will only have to worry about 32 bit vs 64 bit word size
+ * in my PageHeader, not the allocated blocks themselves
+ */
 struct Node {
-    long a;
-    long b;
-    long c;
-    long d;
-    long e;
-    long f;
-    long g;
+    double a;
+    double b;
+    double c;
+    double d;
+    double e;
+    double f;
+    double g;
 };
 
 static Node **nodes;
