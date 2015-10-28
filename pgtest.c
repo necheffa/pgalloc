@@ -25,6 +25,7 @@ struct Node {
     double e;
     double f;
     double g;
+    double h;
 };
 
 static Node **nodes;

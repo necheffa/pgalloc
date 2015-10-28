@@ -14,6 +14,7 @@ static void addFullList(void *);
 static void *removeFullList(void *);
 static void *getPage(void *);
 static unsigned int blocksPerPage(void *);
+static void printPage(void *page);
 
 struct PageHeader {
     unsigned int blockSize;
@@ -287,61 +288,21 @@ void pgview(void) {
     for (int i = 0; i < PAGES; i++) {
 
         void *page = pages[i];
-        PageHeader *ph = (PageHeader *)page;
-        void *freeBlock = NULL;
 
-        if (ph == NULL) {
+        if (page == NULL) {
             continue;
         }
 
-        assert(ph);
-        assert(page);
-        freeBlock = (ph->freeList);
-
-        printf("Page at[%p] ", ((void *)ph));
-        printf("size[%d] ", ph->blockSize);
-        printf("max[%d] ", blocksPerPage(page));
-        printf("used[%d] ", ph->blocksUsed);
-        printf("avl[%p] ", ph->avl);
-
-        if (freeBlock) {
-
-            printf(" free[");
-
-            while (freeBlock) {
-
-                if ( freeBlock == NULL || *(unsigned long *)freeBlock == NULL ) {
-                    break;
-                }
-
-                printf("%p ", (void * ) *((unsigned long **)freeBlock));
-                freeBlock = (void *) *((unsigned long **)freeBlock);
-
-            }
-
-            printf("]\n");
-        } else {
-            printf(" free[]\n");
-        }
-
+        do {
+            printPage(page);
+            page = ((PageHeader *)page)->nextPage;
+        } while (page);
     }
 
     // print full pages
     while (curFullPage) {
 
-        printf("Page at[%p] ", curFullPage);
-        printf("size[%d] ", ((PageHeader *)curFullPage)->blockSize);
-        printf("max[%d] ", blocksPerPage(curFullPage));
-        printf("used[%d] ", ((PageHeader *)curFullPage)->blocksUsed);
-        printf("avl[%p] ", ((PageHeader *)curFullPage)->avl);
-
-        if ( (((PageHeader *)curFullPage)->freeList) ) {
-            // once a page is in the full list it should have a NULL free list
-            fflush(NULL);
-            assert(NULL);
-        }
-
-        printf(" free []\n");
+        printPage(curFullPage);
 
         curFullPage = ((PageHeader *)curFullPage)->nextPage;
 
@@ -349,6 +310,41 @@ void pgview(void) {
             // made one full cycle
             break;
         }
+    }
+}
+
+/**
+ * helper function to simplify pgview() logic
+ */
+static void printPage(void *page) {
+
+    PageHeader *ph = (PageHeader *)page;
+    void *freeBlock = ph->freeList;
+
+    printf("Page at[%p] ", page);
+    printf("size[%d] ", ph->blockSize);
+    printf("max[%d] ", blocksPerPage(page));
+    printf("used[%d] ", ph->blocksUsed);
+    printf("avl[%p] ", ph->avl);
+
+    if (freeBlock) {
+
+        printf(" free[");
+
+        while (freeBlock) {
+
+            if ( freeBlock == NULL || *(unsigned long *)freeBlock == NULL ) {
+                break;
+            }
+
+            printf("%p ", (void * ) *((unsigned long **)freeBlock));
+            freeBlock = (void *) *((unsigned long **)freeBlock);
+
+        }
+
+        printf("]\n");
+    } else {
+        printf(" free[]\n");
     }
 }
 
