@@ -1,3 +1,5 @@
+//#define NDEBUG
+
 #include "config.h"
 #include "pgalloc.h"
 #include <string.h>
@@ -95,8 +97,6 @@ void pgfree(void *ptr) {
     if ( (blocksPerPage(page)) == ph->blocksUsed ) {
         // page was previously full; add into avl pages
         unsigned int i = getPageIndex(ph->blockSize);
-
-        printf("DEBUG: index [%d] for blocksize [%d]\n", i, (ph->blockSize));
 
         removeFullList(page);
 
@@ -243,7 +243,7 @@ void *pgalloc(size_t bytes) {
 
         } else {
             // should NEVER get here
-            fprintf(stderr, "remainingBlocks: [%d]\n", remainingBlocks);
+            fprintf(stderr, "REMAINING BLOCKS: [%d]\n", remainingBlocks);
             fflush(NULL);
             assert(NULL);
         }
@@ -259,6 +259,8 @@ void pgview(void) {
 
     //TODO: add support for printing full pages
     //      add additional page info on part used pages
+
+    void *curFullPage = fullPages;
 
     for (int i = 0; i < PAGES; i++) {
 
@@ -276,7 +278,7 @@ void pgview(void) {
 
         printf("Page at[%p] ", ((void *)ph));
         printf("size[%d] ", ph->blockSize);
-        printf("max[%d] ", blocksPerPage(pages[i]));
+        printf("max[%d] ", blocksPerPage(page));
         printf("used[%d] ", ph->blocksUsed);
         printf("avl[%p] ", ph->avl);
 
@@ -301,15 +303,43 @@ void pgview(void) {
         }
 
     }
+
+    // print full pages
+    while (curFullPage) {
+
+        printf("Page at[%p] ", curFullPage);
+        printf("size[%d] ", ((PageHeader *)curFullPage)->blockSize);
+        printf("max[%d] ", blocksPerPage(curFullPage));
+        printf("used[%d] ", ((PageHeader *)curFullPage)->blocksUsed);
+        printf("avl[%p] ", ((PageHeader *)curFullPage)->avl);
+
+        if ( (((PageHeader *)curFullPage)->freeList) ) {
+            // once a page is in the full list it should have a NULL free list
+            fflush(NULL);
+            assert(NULL);
+        }
+
+        printf(" free []\n");
+
+        curFullPage = ((PageHeader *)curFullPage)->nextPage;
+
+        if (curFullPage == fullPages) {
+            // made one full cycle
+            break;
+        }
+    }
 }
 
 static void addFullList(void *page) {
+
+    //TODO: clean up - consolidate wasteful declarations
 
     if (fullPages == NULL) {
 
         PageHeader *ph = (PageHeader *)page;
         ph->nextPage = NULL;
         ph->prevPage = NULL;
+        ph->freeList = NULL;
 
         fullPages = page;
 
@@ -318,6 +348,8 @@ static void addFullList(void *page) {
         PageHeader *headPage = (PageHeader *)fullPages;
         PageHeader *prevPage = NULL;
         PageHeader *ph = (PageHeader *)page;
+
+        ph->freeList = NULL;
 
         if ( (headPage->prevPage) == NULL ) {
             // list only has a single page
@@ -337,6 +369,7 @@ static void addFullList(void *page) {
             headPage->prevPage = page;
         }
     }
+
 }
 
 static void *removeFullList(void *page) {
@@ -350,11 +383,16 @@ static void *removeFullList(void *page) {
         nph->prevPage = ph->prevPage;
         pph->nextPage = ph->nextPage;
 
+    } else if (nph != NULL) {
+        nph->prevPage = ph->prevPage;
+    } else if (pph != NULL) {
+        pph->prevPage = ph->nextPage;
     }
+
+    fullPages = ((PageHeader *)fullPages)->nextPage;
 
     ph->prevPage = NULL;
     ph->nextPage = NULL;
-
 
     return page;
 }

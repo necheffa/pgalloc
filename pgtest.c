@@ -4,7 +4,7 @@
 
 #include "pgalloc.h"
 
-#define LEN 15
+#define LEN 32
 
 // 20151024 - confirmed working with stdlib.h malloc() and free()
 
@@ -31,7 +31,9 @@ static Node *newNode(void) {
 
 int main(void) {
 
+    printf("first\n");
     pgview();
+    printf("\n");
 
     nodes = pgalloc(sizeof(*nodes) * LEN);
 
@@ -40,12 +42,14 @@ int main(void) {
         Node *n = newNode();
         nodes[i] = n;
 
-        pgview();
-        //printf("alloc [%d]\n", i);
+        //pgview();
+        //printf("\n");
 
     }
 
+    printf("after alloc loop\n");
     pgview();
+    printf("\n");
 
     for (int i = 0; i < (LEN / 2); i++) {
 
@@ -59,13 +63,18 @@ int main(void) {
 
         nodes[i] = NULL;
         pgfree(n);
-        pgview();
+        //pgview();
+        //printf("\n");
     }
 
+    printf("after free loop\n");
     pgview();
+    printf("\n");
 
     Node *m = newNode();
+    printf("after loose alloc\n");
     pgview();
+    printf("\n");
 
     return 0;
 }
