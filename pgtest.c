@@ -4,7 +4,7 @@
 
 #include "pgalloc.h"
 
-#define LEN 32
+#define LEN 96
 
 // 20151024 - confirmed working with stdlib.h malloc() and free()
 
