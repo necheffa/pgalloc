@@ -235,6 +235,11 @@ void *pgalloc(size_t bytes) {
 
             (ph->blocksUsed)++;
 
+            if ( (blocksLeft(page)) == 0 ) {
+                pages[index] = ((PageHeader *)page)->nextPage;
+                addFullList(page);
+            }
+
             return ptr;
         }
 
@@ -265,7 +270,11 @@ void *pgalloc(size_t bytes) {
 
         } else {
             // should NEVER get here
-            fprintf(stderr, "REMAINING BLOCKS: [%d]\n", remainingBlocks);
+
+            /*
+            fprintf(stderr, "REMAINING BLOCKS: [%d] in page [%p]\n", remainingBlocks, page);
+            printPage(page);
+            */
             fflush(NULL);
             assert(NULL);
         }
