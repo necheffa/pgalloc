@@ -288,6 +288,7 @@ void pgview(void) {
     for (int i = 0; i < PAGES; i++) {
 
         void *page = pages[i];
+        void *startPage = pages[i];
 
         if (page == NULL) {
             continue;
@@ -296,6 +297,9 @@ void pgview(void) {
         do {
             printPage(page);
             page = ((PageHeader *)page)->nextPage;
+            if (page == startPage) {
+                break;
+            }
         } while (page);
     }
 
@@ -332,14 +336,8 @@ static void printPage(void *page) {
         printf(" free[");
 
         while (freeBlock) {
-
-            if ( freeBlock == NULL || *(unsigned long *)freeBlock == NULL ) {
-                break;
-            }
-
-            printf("%p ", (void * ) *((unsigned long **)freeBlock));
+            printf("%p ", freeBlock);
             freeBlock = (void *) *((unsigned long **)freeBlock);
-
         }
 
         printf("]\n");
