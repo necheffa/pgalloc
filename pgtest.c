@@ -4,7 +4,7 @@
 
 #include "pgalloc.h"
 
-#define LEN 96
+#define LEN 64
 
 // 20151024 - confirmed working with stdlib.h malloc() and free()
 
@@ -51,32 +51,47 @@ int main(void) {
         nodes[i] = n;
     }
 
-    printf("pgview() after allocating an array and nodes:\n");
+    printf("pgview() after allocating an array and 64 64 byte nodes:\n");
+    printf("We should see 5 pages of block size 15 allocated, one of these pages \n \
+only having 4 used blocks the others full. Also a single page with a \n \
+single block allocated for the array to hold test nodes. On 64 bit machines\n \
+this will have a block size of 512 while on a 32 bit machine the block size\n \
+should be 256\n");
     pgview();
     printf("\n");
 
     for (int i = 0; i < (LEN / 2); i++) {
-
         Node *n = nodes[i];
-
-        if (n == NULL) {
-            printf("Node should not be NULL!\n");
-            fflush(stdout);
-            assert(n);
-        }
-
-        nodes[i] = NULL;
         pgfree(n);
     }
 
-    printf("pgview() after freeing some nodes:\n");
+    printf("pgview() after freeing 32 blocks of size 64:\n");
     pgview();
     printf("\n");
 
-    Node *m = newNode();
-    printf("pgview() after allocating an additional node, should use previously freed block:\n");
+
+    for (int i = 0; i < (LEN / 2); i++) {
+        nodes[i] = newNode();
+    }
+
+    printf("pgview() after allocating an additional 32 nodes, should use previously freed blocks:\n");
     pgview();
     printf("\n");
+
+    for (int i = 0; i < LEN; i++) {
+        Node *n = nodes[i];
+        pgfree(n);
+    }
+
+    printf("pgview() after freeing all allocated nodes; all blocks of size 64 should be free:\n");
+    pgview();
+    printf("\n");
+
+    pgfree(nodes);
+    printf("pgview() after freeing the array used to hold test nodes; all allocated pages should be free:\n");
+    pgview();
+    printf("\n");
+
 
     return 0;
 }
