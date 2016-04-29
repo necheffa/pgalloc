@@ -22,8 +22,11 @@
 #ifndef PGALLOC_H
 #define PGALLOC_H
 
-#include "config.h"
 #include <stddef.h>
+
+// update to 8128 for final version
+#define PAGE_SIZE   1024
+#define BBLOCK_SIZE 8
 
 void *pgalloc(size_t);
 void pgfree(void *);

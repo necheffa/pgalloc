@@ -22,7 +22,6 @@
 
 //#define NDEBUG
 
-#include "config.h"
 #include "pgalloc.h"
 #include <string.h>
 #include <assert.h>
@@ -77,33 +76,6 @@ static unsigned int getPageIndex(unsigned int byteRequest) {
     // we should always return a positive index
     assert( i >= 0 );
     return i;
-}
-
-/**
- * Wrapper function designed to make
- * pgalloc a little more cross platform
- * since I typically use Linux or some other
- * POSIX complient system on a day to day basis
- * rather than Windows but would really like this
- * to compile and run on Windows since that is likely
- * what will be used to test for grading purposes.
- */
-static void *ALLIGNED_MALLOC(size_t size, size_t alignment) {
-
-    void *page;
-
-    if (NON_POSIX) {
-        page = (void *) _aligned_malloc(size, alignment);
-    } else {
-        page = (void *) memalign(alignment, size);
-    }
-
-    if (page == NULL) {
-        printf("ALLIGNED_MALLOC null page\n");
-        fflush(stdout);
-        //assert(NULL);
-    }
-    return page;
 }
 
 /**
@@ -168,7 +140,7 @@ static void *getPage(void *ptr) {
  */
 static void *newPage(unsigned int blockSize) {
 
-    void *page = ALLIGNED_MALLOC(PAGE_SIZE, PAGE_SIZE);
+    void *page = memalign(PAGE_SIZE, PAGE_SIZE);
 
     PageHeader *header = (PageHeader *)page;
 
