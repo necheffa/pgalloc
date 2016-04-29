@@ -27,6 +27,11 @@
 #include <assert.h>
 #include <malloc.h>
 
+/*
+ * Support up to 8^125 block pages
+ * TODO: implement traditional "best fit" for
+ *   requests that go past 8^125 bytes
+ */
 #define PAGES   125
 
 typedef struct PageHeader PageHeader;
@@ -38,10 +43,10 @@ static unsigned int blocksPerPage(void *);
 static void printPage(void *page);
 
 struct PageHeader {
-    unsigned int blockSize;
-    unsigned int blocksUsed;
-    void *freeList;
-    void *avl;
+    unsigned int blockSize;     // block size in bytes for this Page
+    unsigned int blocksUsed;    // number of blocks used in this Page
+    void *freeList;             // recycled blocks in this Page
+    void *avl;                  // next available block (may be in freeList or previously unallocated memory)
     void *nextPage;
     void *prevPage;
 };
