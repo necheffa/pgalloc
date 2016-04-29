@@ -28,8 +28,22 @@
 #define PAGE_SIZE   1024
 #define BBLOCK_SIZE 8
 
+
+/*
+ * Returns pointer to memory of size size_t bytes
+ *   or NULL on error
+ */
 void *pgalloc(size_t);
+
+/*
+ * Frees memory allocated by pgalloc
+ *   if passed a NULL pointer, pgfree takes no action
+ */
 void pgfree(void *);
+
+/*
+ * Used as a diagnostic tool to view memory pages
+ */
 void pgview(void);
 
 #endif /* PGALLOC_H */
