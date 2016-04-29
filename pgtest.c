@@ -1,3 +1,23 @@
+/*
+   A "fast" fixed block size memory allocater
+   Copyright (C) 2015,2016 Alexander Necheff
+
+   This library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   This library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with this library; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+   USA
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -53,10 +73,10 @@ int main(void) {
 
     printf("pgview() after allocating an array and 64 64 byte nodes:\n");
     printf("We should see 5 pages of block size 15 allocated, one of these pages \n \
-only having 4 used blocks the others full. Also a single page with a \n \
-single block allocated for the array to hold test nodes. On 64 bit machines\n \
-this will have a block size of 512 while on a 32 bit machine the block size\n \
-should be 256\n");
+            only having 4 used blocks the others full. Also a single page with a \n \
+            single block allocated for the array to hold test nodes. On 64 bit machines\n \
+            this will have a block size of 512 while on a 32 bit machine the block size\n \
+            should be 256\n");
     pgview();
     printf("\n");
 
