@@ -1,8 +1,8 @@
 CC=/usr/bin/gcc
-CFLAGS=-std=c99 -g -Wall -Werror
+CFLAGS=-Wall -Werror -std=c99 -ggdb -fno-omit-frame-pointer -fsanitize=address -fsanitize=undefined
 
 all:
 	$(CC) $(CFLAGS) -o test pgtest.c pgalloc.c
 
 clean:
-	rm -rf test
+	rm -f test
