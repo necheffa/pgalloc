@@ -8,7 +8,7 @@ size in the table then pgalloc() will fall back on a more traditional "best fit"
 algorithm (yet to be implemented!!).
 
 Each page is itself a node in a linked list, allowing the tracking of multiple
-pages within the table. At first there will only be one page per block size
+pages per block size within the table. At first there will only be one page per block size
 but as pages are filled and subsiquently recycled this mechanism allows us to
 track all pages with available blocks.
 
