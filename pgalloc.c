@@ -146,6 +146,9 @@ static void *getPage(void *ptr) {
 static void *newPage(unsigned int blockSize) {
 
     void *page = memalign(PAGE_SIZE, PAGE_SIZE);
+    assert(page);
+    page = memset(page, 0, PAGE_SIZE);
+    assert(page);
 
     PageHeader *header = (PageHeader *)page;
 
@@ -155,10 +158,6 @@ static void *newPage(unsigned int blockSize) {
     header->avl = (page + PAGE_SIZE);
     header->nextPage = NULL;
     header->prevPage = NULL;
-
-    // page should not be NULL under
-    // a light load
-    assert(page);
 
     return page;
 }
