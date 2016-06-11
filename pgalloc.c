@@ -18,14 +18,11 @@
    USA
 */
 
-
-
-//#define NDEBUG
-
-#include "pgalloc.h"
 #include <string.h>
 #include <assert.h>
 #include <malloc.h>
+
+#include "pgalloc.h"
 
 /*
  * Support up to 8^125 block pages
@@ -36,12 +33,16 @@
 
 typedef struct PageHeader PageHeader;
 
+/* see function definitions for documentation */
 static void addFullList(void *);
 static void *removeFullList(void *);
 static void *getPage(void *);
 static unsigned int blocksPerPage(void *);
-static void printPage(void *page);
+static void printPage(void *);
 
+/*
+ * Defines how bookkeeping is stored at the head of a given page.
+ */
 struct PageHeader {
     unsigned int blockSize;     // block size in bytes for this Page
     unsigned int blocksUsed;    // number of blocks used in this Page
@@ -51,15 +52,23 @@ struct PageHeader {
     void *prevPage;
 };
 
+/* track pages with avilable blocks */
 static void *pages[PAGES] = { NULL };
+
+/* track full pages for debug purposes only
+ * see pgview()
+ */
 static void *fullPages = NULL;
 
+/* Mainly used as a way to get a pointer to front
+ * of page given a pointer to an arbitrary point
+ * in page. See pgfree().
+ */
 static unsigned long pageMask = ~((unsigned long) (PAGE_SIZE - 1));
 
 /**
- * Using a little bit of clever math,
- * figure out what index the memory page
- * for a given request in bytes would be
+ * Convert a byte request into an index in to
+ * pages[]
  */
 static unsigned int getPageIndex(unsigned int byteRequest) {
 
@@ -78,19 +87,18 @@ static unsigned int getPageIndex(unsigned int byteRequest) {
     // handle zero indexing
     i--;
 
-    // we should always return a positive index
-    assert( i >= 0 );
+    assert( i >= 0 && i <= PAGES);
     return i;
 }
 
 /**
- * marks the block referenced by ptr as
- * available for allocation
+ * Recycle the block refered to by ptr.
+ *
+ * pgfree() takes no action when ptr is NULL.
  */
 void pgfree(void *ptr) {
 
-    // if free is passed a NULL pointer take no action
-    if (ptr == NULL) {
+    if (!ptr) {
         return;
     }
 
@@ -111,6 +119,8 @@ void pgfree(void *ptr) {
 
     }
 
+    // TODO: should probably use some of the C99 pointer types to make
+    //    updating ph->freeList safter
     if ( (ph->freeList) != NULL ) {
 
         *((unsigned long *)ptr) = (unsigned long) (ph->freeList);
