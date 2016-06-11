@@ -112,6 +112,7 @@ int main(void) {
     pgview();
     printf("\n");
 
+    printf("\nAll tests finished without existing prematurely.\n");
 
     return 0;
 }
