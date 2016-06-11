@@ -24,8 +24,8 @@
 
 #include <stddef.h>
 
-// update to 8128 for final version
-#define PAGE_SIZE   1024
+// update to 8192 for final version
+#define PAGE_SIZE   8192
 #define BBLOCK_SIZE 8
 
 
