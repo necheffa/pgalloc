@@ -71,12 +71,15 @@ int main(void) {
         nodes[i] = n;
     }
 
-    printf("pgview() after allocating an array and 64 64 byte nodes:\n");
+    printf("pgview() after allocating an array and %d %lu byte nodes:\n", LEN, sizeof(Node));
+
+    /*
     printf("We should see 5 pages of block size 15 allocated, one of these pages \n \
             only having 4 used blocks the others full. Also a single page with a \n \
             single block allocated for the array to hold test nodes. On 64 bit machines\n \
             this will have a block size of 512 while on a 32 bit machine the block size\n \
             should be 256\n");
+    */
     pgview();
     printf("\n");
 
@@ -85,7 +88,7 @@ int main(void) {
         pgfree(n);
     }
 
-    printf("pgview() after freeing 32 blocks of size 64:\n");
+    printf("pgview() after freeing %d blocks of size %lu:\n", LEN, sizeof(Node));
     pgview();
     printf("\n");
 
@@ -94,7 +97,7 @@ int main(void) {
         nodes[i] = newNode();
     }
 
-    printf("pgview() after allocating an additional 32 nodes, should use previously freed blocks:\n");
+    printf("pgview() after allocating an additional %d nodes, should use previously freed blocks:\n", LEN);
     pgview();
     printf("\n");
 
@@ -103,7 +106,7 @@ int main(void) {
         pgfree(n);
     }
 
-    printf("pgview() after freeing all allocated nodes; all blocks of size 64 should be free:\n");
+    printf("pgview() after freeing all allocated nodes; all blocks of size %lu should be free:\n", sizeof(Node));
     pgview();
     printf("\n");
 
