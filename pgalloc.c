@@ -16,7 +16,7 @@
    License along with this library; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
    USA
-*/
+   */
 
 #include <string.h>
 #include <assert.h>
@@ -207,10 +207,9 @@ void *pgalloc(size_t bytes) {
     unsigned int index = getPageIndex(bytes);
 
     if (index > PAGES || index < 0) {
-        // index out of bounds
-        printf("index out of bounds\n");
+        //TODO: here is where we would start using the best fit algorithm
+        fprintf(stderr, "index out of bounds\n");
         fflush(stdout);
-        assert(NULL);
         return NULL;
     }
 
@@ -230,62 +229,52 @@ void *pgalloc(size_t bytes) {
         assert((ph->avl));
         return (ph->avl);
 
-    } else {
+    }
 
-        unsigned int remainingBlocks = blocksLeft(page);
-        PageHeader *ph = (PageHeader *)page;
+    unsigned int remainingBlocks = blocksLeft(page);
+    PageHeader *ph = (PageHeader *)page;
 
-        if (ph->freeList) {
-            // there are free blocks in the list
+    if (ph->freeList) {
+        // there are free blocks in the list
 
-            ptr = ph->freeList;
-            ph->freeList = (void *) *((unsigned long **)(ph->freeList));
+        ptr = ph->freeList;
+        ph->freeList = (void *) *((unsigned long **)(ph->freeList));
 
-            (ph->blocksUsed)++;
+        (ph->blocksUsed)++;
 
-            if ( (blocksLeft(page)) == 0 ) {
-                pages[index] = ((PageHeader *)page)->nextPage;
-                addFullList(page);
-            }
-
-            return ptr;
-        }
-
-        if (remainingBlocks >= 2) {
-            // add block to page
-
-            (ph->blocksUsed)++;
-            (ph->avl) -= (ph->blockSize);
-
-            return (ph->avl);
-
-        } else if (remainingBlocks == 1) {
-
-            // need to move to a new page
-
-            (ph->blocksUsed)++;
-            ph->avl -= ph->blockSize;
-
-            /* will either be NULL or if there are
-             * partially free pages we'll start filling those
-             * before creating a whole new page
-             */
+        if ( (blocksLeft(page)) == 0 ) {
             pages[index] = ((PageHeader *)page)->nextPage;
-
             addFullList(page);
-
-            return ((PageHeader *)page)->avl;
-
-        } else {
-            // should NEVER get here
-
-            /*
-               fprintf(stderr, "REMAINING BLOCKS: [%d] in page [%p]\n", remainingBlocks, page);
-               printPage(page);
-               */
-            fflush(NULL);
-            assert(NULL);
         }
+
+        return ptr;
+    }
+
+    if (remainingBlocks >= 2) {
+        // add block to page
+
+        (ph->blocksUsed)++;
+        (ph->avl) -= (ph->blockSize);
+
+        return (ph->avl);
+
+    } else if (remainingBlocks == 1) {
+
+        // need to move to a new page
+
+        (ph->blocksUsed)++;
+        ph->avl -= ph->blockSize;
+
+        /* will either be NULL or if there are
+         * partially free pages we'll start filling those
+         * before creating a whole new page
+         */
+        pages[index] = ((PageHeader *)page)->nextPage;
+
+        addFullList(page);
+
+        return ((PageHeader *)page)->avl;
+
     }
 
 
