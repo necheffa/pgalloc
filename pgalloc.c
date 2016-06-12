@@ -19,6 +19,7 @@
    */
 
 #include <string.h>
+#include <stdint.h>
 #include <assert.h>
 #include <malloc.h>
 
@@ -119,16 +120,12 @@ void pgfree(void *ptr) {
 
     }
 
-    // TODO: should probably use some of the C99 pointer types to make
-    //    updating ph->freeList safter
     if ( (ph->freeList) != NULL ) {
 
-        *((unsigned long *)ptr) = (unsigned long) (ph->freeList);
-
+        *((uintptr_t *)ptr) = (uintptr_t) (ph->freeList);
     } else {
 
-        *((unsigned long *)ptr) = (unsigned long) NULL;
-
+        *((uintptr_t *)ptr) = (uintptr_t) NULL;
     }
 
     ph->freeList = &(*((unsigned long *)ptr));
