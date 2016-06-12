@@ -18,10 +18,14 @@
    USA
    */
 
+/* needed for posix_memalign */
+#define _POSIX_C_SOURCE 200112L
+
 #include <string.h>
 #include <stdint.h>
 #include <assert.h>
-#include <malloc.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 #include "pgalloc.h"
 
@@ -152,11 +156,19 @@ static void *getPage(void *ptr) {
  */
 static void *newPage(unsigned int blockSize) {
 
-    void *page = memalign(PAGE_SIZE, PAGE_SIZE);
-    assert(page);
-    page = memset(page, 0, PAGE_SIZE);
-    assert(page);
+    void *page = NULL;
 
+    // TODO: should be posix_memalign(&page, BBLOCK_SIZE, PAGE_SIZE
+    // but fails with division by 0 in blocksPerPage()
+    if ( (posix_memalign(&page, PAGE_SIZE, PAGE_SIZE)) ) {
+        /* either BBLOCK_SIZE and PAGE_SIZE are not good
+         * (unlikely) or system is out of memory
+         */
+        perror("");
+        exit(-1);
+    }
+
+    page = memset(page, 0, PAGE_SIZE);
     PageHeader *header = (PageHeader *)page;
 
     header->blockSize = blockSize;
