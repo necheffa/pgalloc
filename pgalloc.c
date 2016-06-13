@@ -69,7 +69,7 @@ static void *fullPages = NULL;
  * of page given a pointer to an arbitrary point
  * in page. See pgfree().
  */
-static unsigned long pageMask = ~((unsigned long) (PAGE_SIZE - 1));
+static uintptr_t pageMask = ~((uintptr_t) (PAGE_SIZE - 1));
 
 /**
  * Convert a byte request into an index in to
@@ -146,7 +146,7 @@ void pgfree(void *ptr) {
  */
 static void *getPage(void *ptr) {
 
-    void *page = (void *) ((((unsigned long) ptr) & pageMask));
+    void *page = (void *) ((((uintptr_t) ptr) & pageMask));
 
     return page;
 }
@@ -158,12 +158,10 @@ static void *newPage(unsigned int blockSize) {
 
     void *page = NULL;
 
-    // TODO: should be posix_memalign(&page, BBLOCK_SIZE, PAGE_SIZE
-    // but fails with division by 0 in blocksPerPage()
+    /*
+     * Aligned on PAGE_SIZE to make pageMask work in getPage()
+     */
     if ( (posix_memalign(&page, PAGE_SIZE, PAGE_SIZE)) ) {
-        /* either BBLOCK_SIZE and PAGE_SIZE are not good
-         * (unlikely) or system is out of memory
-         */
         perror("");
         exit(-1);
     }
@@ -247,7 +245,7 @@ void *pgalloc(size_t bytes) {
         // there are free blocks in the list
 
         ptr = ph->freeList;
-        ph->freeList = (void *) *((unsigned long **)(ph->freeList));
+        ph->freeList = (void *) *((uintptr_t **)(ph->freeList));
 
         (ph->blocksUsed)++;
 
@@ -352,7 +350,7 @@ static void printPage(void *page) {
 
         while (freeBlock) {
             printf("%p ", freeBlock);
-            freeBlock = (void *) *((unsigned long **)freeBlock);
+            freeBlock = (void *) *((uintptr_t **)freeBlock);
         }
 
         printf("]\n");
