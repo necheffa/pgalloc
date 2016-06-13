@@ -1,22 +1,22 @@
 /*
-   A "fast" fixed block size memory allocater
-   Copyright (C) 2015,2016 Alexander Necheff
+A "fast" fixed block size memory allocater
+Copyright (C) 2015,2016 Alexander Necheff
 
-   This library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Lesser General Public
-   License as published by the Free Software Foundation; either
-   version 2.1 of the License, or (at your option) any later version.
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
 
-   This library is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Lesser General Public License for more details.
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
 
-   You should have received a copy of the GNU Lesser General Public
-   License along with this library; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
-   USA
-   */
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+USA
+*/
 
 /* needed for posix_memalign */
 #define _POSIX_C_SOURCE 200112L
@@ -52,7 +52,7 @@ struct PageHeader {
     unsigned int blockSize;     // block size in bytes for this Page
     unsigned int blocksUsed;    // number of blocks used in this Page
     void *freeList;             // recycled blocks in this Page
-    void *avl;                  // next available block (may be in freeList or previously unallocated memory)
+    void *avl;                  // next available block
     void *nextPage;
     void *prevPage;
 };
@@ -186,7 +186,8 @@ static void *newPage(unsigned int blockSize) {
 static unsigned int blocksLeft(void *page) {
 
     unsigned int blockSize = ((PageHeader *)page)->blockSize;
-    unsigned int blocksPerPage = (PAGE_SIZE - sizeof(PageHeader)) / blockSize;
+    unsigned int blocksPerPage =
+        (PAGE_SIZE - sizeof(PageHeader)) / blockSize;
 
     return blocksPerPage - ((PageHeader *)page)->blocksUsed;
 }
