@@ -132,7 +132,7 @@ void pgfree(void *ptr) {
         *((uintptr_t *)ptr) = (uintptr_t) NULL;
     }
 
-    ph->freeList = &(*((unsigned long *)ptr));
+    ph->freeList = &(*((uintptr_t *)ptr));
 
     // ph->freeList should never be NULL at this point
     assert( (ph->freeList) );
