@@ -29,12 +29,8 @@ USA
 
 #include "pgalloc.h"
 
-/*
- * Support up to 8^125 block pages
- * TODO: implement traditional "best fit" for
- *   requests that go past 8^125 bytes
- */
-#define PAGES   125
+// need to calc max PAGES at compile time
+#define PAGES   1020
 #define PAGE_SIZE 8192
 #define BBLOCK_SIZE 8
 
@@ -58,6 +54,12 @@ struct PageHeader {
     void *nextPage;
     void *prevPage;
 };
+
+
+/* Used to track the largest data that can be stored in a single page
+ */
+static unsigned int maxPageData = PAGE_SIZE - sizeof(PageHeader);
+
 
 /* track pages with avilable blocks */
 static void *pages[PAGES] = { NULL };
@@ -94,7 +96,6 @@ static unsigned int getPageIndex(unsigned int byteRequest) {
     // handle zero indexing
     i--;
 
-    assert( i >= 0 && i <= PAGES);
     return i;
 }
 
@@ -213,6 +214,12 @@ void *pgalloc(size_t bytes) {
 
     void *page = NULL;
     void *ptr = NULL;
+
+    if (bytes > maxPageData) {
+        // currently do not have a way to span multiple pages
+        fprintf(stderr, "request exceeds page size\n");
+        return NULL;
+    }
 
     unsigned int index = getPageIndex(bytes);
 
