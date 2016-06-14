@@ -35,6 +35,8 @@ USA
  *   requests that go past 8^125 bytes
  */
 #define PAGES   125
+#define PAGE_SIZE 8192
+#define BBLOCK_SIZE 8
 
 typedef struct PageHeader PageHeader;
 

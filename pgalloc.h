@@ -24,10 +24,6 @@ USA
 
 #include <stddef.h>
 
-#define PAGE_SIZE   8192
-#define BBLOCK_SIZE 8
-
-
 /*
  * Returns pointer to memory of size size_t bytes
  *   or NULL on error
