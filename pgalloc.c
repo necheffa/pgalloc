@@ -96,6 +96,10 @@ static unsigned int getPageIndex(unsigned int byteRequest) {
     // handle zero indexing
     i--;
 
+<<<<<<< HEAD
+=======
+    assert(i <= PAGES);
+>>>>>>> origin
     return i;
 }
 
@@ -223,7 +227,7 @@ void *pgalloc(size_t bytes) {
 
     unsigned int index = getPageIndex(bytes);
 
-    if (index > PAGES || index < 0) {
+    if (index > PAGES) {
         //TODO: here is where we would start using the best fit algorithm
         fprintf(stderr, "index out of bounds\n");
         fflush(stdout);
