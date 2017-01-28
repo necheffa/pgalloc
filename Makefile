@@ -1,5 +1,5 @@
 CC=/usr/bin/gcc
-CFLAGS=-Wall -Wextra -Wformat -Werror -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -std=c99 -ggdb  -fno-omit-frame-pointer -fsanitize=address -fsanitize=undefined -Wl,-z,now,-z,relro
+CFLAGS=-Wall -Wextra -Wformat -Werror -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -std=c99 -ggdb -fno-omit-frame-pointer -fsanitize=address -fsanitize=undefined -Wl,-z,now,-z,relro
 
 all: pgtest
 

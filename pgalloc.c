@@ -96,10 +96,7 @@ static unsigned int getPageIndex(unsigned int byteRequest) {
     // handle zero indexing
     i--;
 
-<<<<<<< HEAD
-=======
     assert(i <= PAGES);
->>>>>>> origin
     return i;
 }
 
