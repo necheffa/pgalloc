@@ -30,9 +30,9 @@ USA
 #include "pgalloc.h"
 
 // need to calc max PAGES at compile time
-#define PAGES   1020
-#define PAGE_SIZE 8192
-#define BBLOCK_SIZE 8
+#define PAGES          1024
+#define PAGE_SIZE      8192
+#define BBLOCK_SIZE    8
 
 typedef struct PageHeader PageHeader;
 
