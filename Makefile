@@ -3,6 +3,9 @@ CFLAGS=-Wall -Wextra -Wformat -Werror -fstack-protector-strong -U_FORTIFY_SOURCE
 
 all: pgtest
 
+quality:
+	cppcheck --enable=all --force --quiet *.c *.h
+
 # statically link pgalloc.o for ease of testing;
 # don't have to muck around with LD_LIBRARY_PATH
 pgtest: pgalloc.so
