@@ -1,6 +1,6 @@
 /*
 A "fast" fixed block size memory allocater
-Copyright (C) 2015,2016 Alexander Necheff
+Copyright (C) 2015,2018 Alexander Necheff
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -214,7 +214,6 @@ static unsigned int blocksPerPage(void *page) {
 void *pgalloc(size_t bytes) {
 
     void *page = NULL;
-    void *ptr = NULL;
 
     if (bytes > maxPageData) {
         // currently do not have a way to span multiple pages
@@ -254,6 +253,7 @@ void *pgalloc(size_t bytes) {
 
     if (ph->freeList) {
         // there are free blocks in the list
+        void *ptr = NULL;
 
         ptr = ph->freeList;
         ph->freeList = (void *) *((uintptr_t **)(ph->freeList));
@@ -350,9 +350,9 @@ static void printPage(void *page) {
     void *freeBlock = ph->freeList;
 
     printf("Page at[%p] ", page);
-    printf("size[%d] ", ph->blockSize);
+    printf("size[%u] ", ph->blockSize);
     printf("max[%d] ", blocksPerPage(page));
-    printf("used[%d] ", ph->blocksUsed);
+    printf("used[%u] ", ph->blocksUsed);
     printf("avl[%p] ", ph->avl);
 
     if (freeBlock) {
@@ -399,7 +399,7 @@ static void addFullList(void *page) {
             headPage->nextPage = page;
             headPage->prevPage = page;
 
-            ph->nextPage = fullPages;
+            ph->prevPage = fullPages;
             ph->nextPage = fullPages;
 
         } else {
