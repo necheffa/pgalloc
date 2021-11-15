@@ -1,24 +1,48 @@
 CC=/usr/bin/gcc
 #CC=/usr/bin/clang
-CFLAGS=-Wall -Wextra -Wformat -fstack-protector-strong -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -O3 -std=c17 -ggdb -fno-omit-frame-pointer -fsanitize=address -fsanitize=undefined -Wl,-z,now,-z,relro
+SRP=/usr/bin/strip
 
-all: pgtest
+CFLAGS=-Wall -Wextra -Wformat -std=c17 -pedantic -fPIC
+PROD=-fstack-protector-strong -O3 -flto
+CPPFLAGS=-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
+SANITIZE=-fsanitize=address -fsanitize=undefined -fsanitize=leak
+DEBUG=-ggdb -fno-omit-frame-pointer -O0
+CCLDFLAGS=-Wl,-z,relro,-z,now -fPIC
+
+LIBS=libpgalloc.a \
+     libpgalloc.so.0
+
+BINS=pgtest
+
+OBJS=pgalloc.o
+
+all: $(BINS) $(LIBS)
 
 quality:
 	cppcheck --enable=all --force --quiet *.c *.h
 
-# statically link pgalloc.o for ease of testing;
-# don't have to muck around with LD_LIBRARY_PATH
-pgtest: pgalloc.so
-	$(CC) $(CFLAGS) -o pgtest pgtest.c pgalloc.o
+pgtest: libpgalloc.a
+	$(CC) $(CFLAGS) -o pgtest pgtest.c libpgalloc.a
 
+debug: CFLAGS += $(DEBUG)
+debug: all
 
-pgalloc.so: pgalloc.o
-	$(CC) -ggdb -shared -o libpgalloc.so pgalloc.o
+sanitize: CFLAGS += $(SANITIZE)
+sanitize: debug
 
+prod: CFLAGS += $(PROD)
+prod: CFLAGS += $(CPPFLAGS)
+prod: all
+	$(SRP) $(LIBS) $(OBJS) $(BINS)
 
-pgalloc.o:
-	$(CC) $(CFLAGS) -fPIC -c pgalloc.c
+libpgalloc.so.0: $(OBJS)
+	$(CC) -shared -Wl,-soname,libpgalloc.so.0 -o libpgalloc.so.0 $(OBJS)
+
+libpgalloc.a: $(OBJS)
+	$(AR) -r libpgalloc.a $(OBJS)
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm -f pgtest pgalloc.o libpgalloc.so
+	rm -f $(OBJS) $(BINS) $(LIBS)
