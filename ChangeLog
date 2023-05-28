@@ -1,0 +1,3 @@
+2021-11-14 Alexander Necheff <alex@necheff.net>
+    * Set version to 1.2.0, using semantic versioning.
+    * Prior versions had no ChangeLog, this is the first.
