@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+
+set -e
+
+SUBVER="${DEBABI:-1}"
+
+WRKDIR="$(mktemp -d)"
+CURDIR="$(pwd)"
+# Per Debian maintainer's guide, we want to avoid `-` in the upstream version number.
+# Since I note development builds similarly to "1.1.0-dev3", I need to transform that
+# to "1.1.0~dev3" to maintain compatabiliy with dpkg. A `-` is used to seporate the
+# upstream version from the package/ABI version incremented by Debian.
+PKGVER="$(cat VERSION | tr '-' '~')-$SUBVER"
+PKGDIR="pgalloc_${PKGVER}_amd64"
+
+function cleanup {
+    rm -rf "$WRKDIR"
+}
+trap cleanup EXIT
+
+cd "$WRKDIR"
+mkdir -p "$PKGDIR"/opt/catloaf/lib
+
+BINDST="$PKGDIR"/opt/catloaf/lib
+
+cp "$CURDIR"/libpgalloc.so.0 "$BINDST"/libpgalloc.so.0.0.0
+cp "$CURDIR"/libpgalloc.a "$BINDST"/
+
+cd "$BINDST"
+ln -s libpgalloc.so.0.0.0 libpgalloc.so.0
+ln -s libpgalloc.so.0.0.0 libpgalloc.so
+cd "$WRKDIR"
+
+INCDIR="$PKGDIR"/opt/catloaf/include/pgalloc
+mkdir -p "$INCDIR"
+
+cp "$CURDIR"/*.h "$INCDIR"/
+
+mkdir -p "$PKGDIR"/DEBIAN
+
+CONTROL="\
+Package: pgalloc
+Version: $PKGVER
+Architecture: amd64
+Depends: libc6 (>= 2.31)
+Maintainer: Alex Necheff <pkg@necheff.net>
+Homepage: https://www.necheff.net
+Description: A fast fixed block size memory allocator.
+"
+
+echo "$CONTROL" > "$PKGDIR"/DEBIAN/control
+
+POSTINST="\
+#!/usr/bin/env bash
+
+set -e
+
+chown -R root:root /opt/catloaf/include/pgalloc
+chown root:root /opt/catloaf/lib/libpgalloc.a
+chown root:root /opt/catloaf/lib/libpgalloc.so.0.0.0
+chown -h root:root /opt/catloaf/lib/libpgalloc.so.0
+chown -h root:root /opt/catloaf/lib/libpgalloc.so
+"
+
+echo "$POSTINST" > "$PKGDIR"/DEBIAN/postinst
+chmod 0555 "$PKGDIR"/DEBIAN/postinst
+
+dpkg-deb --build "$PKGDIR"
+cp "$PKGDIR".deb "$CURDIR"/
+

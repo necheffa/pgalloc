@@ -18,6 +18,9 @@ OBJS=pgalloc.o
 
 all: $(BINS) $(LIBS)
 
+debian: all
+	scripts/package-deb
+
 quality:
 	cppcheck --enable=all --force --quiet *.c *.h
 
@@ -45,4 +48,4 @@ libpgalloc.a: $(OBJS)
 	$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm -f $(OBJS) $(BINS) $(LIBS)
+	rm -f $(OBJS) $(BINS) $(LIBS) *.deb
