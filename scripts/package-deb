@@ -55,6 +55,7 @@ POSTINST="\
 
 set -e
 
+chown root:root /opt/catloaf/include
 chown -R root:root /opt/catloaf/include/pgalloc
 chown root:root /opt/catloaf/lib/libpgalloc.a
 chown root:root /opt/catloaf/lib/libpgalloc.so.0.0.0

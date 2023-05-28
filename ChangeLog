@@ -1,4 +1,9 @@
 2023-05-27 Alexander Necheff <alex@necheff.net>
+    * Set version to 1.2.2.
+    * Corrected issue where /opt/catloaf/include may not have the correct permissions
+        set on install with Debian package.
+
+2023-05-27 Alexander Necheff <alex@necheff.net>
     * Set version to 1.2.1.
     * Added target to build Debian package.
 
