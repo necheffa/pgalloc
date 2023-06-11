@@ -15,6 +15,12 @@ PKGDIR="pgalloc_${PKGVER}_amd64"
 
 function cleanup {
     rm -rf "$WRKDIR"
+
+    if [ "$(whoami)" != "root" ]; then
+        echo "Did you remember to build with \`fakeroot\` you silly goose?"
+        echo "If not, you better know what you are doing."
+        exit 1
+    fi
 }
 trap cleanup EXIT
 
@@ -49,22 +55,6 @@ Description: A fast fixed block size memory allocator.
 "
 
 echo "$CONTROL" > "$PKGDIR"/DEBIAN/control
-
-POSTINST="\
-#!/usr/bin/env bash
-
-set -e
-
-chown root:root /opt/catloaf/include
-chown -R root:root /opt/catloaf/include/pgalloc
-chown root:root /opt/catloaf/lib/libpgalloc.a
-chown root:root /opt/catloaf/lib/libpgalloc.so.0.0.0
-chown -h root:root /opt/catloaf/lib/libpgalloc.so.0
-chown -h root:root /opt/catloaf/lib/libpgalloc.so
-"
-
-echo "$POSTINST" > "$PKGDIR"/DEBIAN/postinst
-chmod 0555 "$PKGDIR"/DEBIAN/postinst
 
 dpkg-deb --build "$PKGDIR"
 cp "$PKGDIR".deb "$CURDIR"/
