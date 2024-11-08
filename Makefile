@@ -24,6 +24,10 @@ debian: all
 quality:
 	cppcheck --enable=all --force --quiet *.c *.h
 
+unittests: CFLAGS += -Wno-unused-parameter
+unittests: libpgalloc.a
+	$(CC) $(CFLAGS) $(CCLDFLAGS) -o unittests testdriver.c libpgalloc.a -lcmocka
+
 pgtest: libpgalloc.a
 	$(CC) $(CFLAGS) -o pgtest pgtest.c libpgalloc.a
 
@@ -48,4 +52,4 @@ libpgalloc.a: $(OBJS)
 	$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm -f $(OBJS) $(BINS) $(LIBS) *.deb
+	rm -f $(OBJS) $(BINS) $(LIBS) *.deb unittests

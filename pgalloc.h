@@ -24,6 +24,8 @@ USA
 
 #include <stddef.h>
 
+typedef struct PageHeader PageHeader;
+
 /*
  * Returns pointer to memory of size size_t bytes
  *   or NULL on error
@@ -40,5 +42,9 @@ void pgfree(void *);
  * Used as a diagnostic tool to view memory pages
  */
 void pgview(void);
+
+PageHeader *PgPageInfo(void *p);
+
+unsigned int PgUsedBlocks(PageHeader *ph);
 
 #endif /* PGALLOC_H */

@@ -1,6 +1,6 @@
 /*
 A "fast" fixed block size memory allocater
-Copyright (C) 2015,2018,2019 Alexander Necheff
+Copyright (C) 2015, 2018, 2019, 2024 Alexander Necheff
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -444,3 +444,21 @@ static void *removeFullList(void *page) {
     return page;
 }
 
+PageHeader *PgPageInfo(void *p)
+{
+    if (p) {
+        void *page = getPage(p);
+        return (PageHeader *)page;
+    }
+
+    return NULL;
+}
+
+unsigned int PgUsedBlocks(PageHeader *ph)
+{
+    if (ph) {
+        return ph->blocksUsed;
+    }
+
+    return 0;
+}
