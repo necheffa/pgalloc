@@ -4,3 +4,4 @@
 pgtest
 *.deb
 unittests
+test.log
