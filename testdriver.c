@@ -172,8 +172,8 @@ static void test_blocks_span_pages(void **state)
     const unsigned int num = 16;
     void **bigArr = pgalloc(sizeof(*bigArr) * num);
 
-    for (int i = 0; i < num; i++) {
-        bigArr[i] = pgalloc(64 * 64);
+    for (unsigned int i = 0; i < num; i++) {
+        bigArr[i] = pgalloc(sizeof(void *) * LEN);
     }
 
     PageHeader *ph0 = PgPageInfo(bigArr[0]);
@@ -189,7 +189,7 @@ static void test_blocks_span_pages(void **state)
     assert_true(15 == PgMaxBlocks(ph1));
     assert_true(0 == PgFreeBlocks(ph1));
 
-    for (int i = 0; i < num; i++) {
+    for (unsigned int i = 0; i < num; i++) {
         pgfree(bigArr[i]);
     }
     pgfree(bigArr);
