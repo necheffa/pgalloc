@@ -9,8 +9,14 @@ SANITIZE=-fsanitize=address -fsanitize=undefined -fsanitize=leak
 DEBUG=-ggdb -fno-omit-frame-pointer -O0
 CCLDFLAGS=-Wl,-z,relro,-z,now -fPIC
 
+VERSION_ABI:=$(shell cat VERSION_ABI)
+MAJOR:=$(shell awk -F. '{print $$1}' < VERSION_ABI)
+BASENAME:=libpgalloc.so
+
+DYNLIB:=$(BASENAME).$(MAJOR)
+
 LIBS=libpgalloc.a \
-     libpgalloc.so.0
+     $(DYNLIB)
 
 OBJS=pgalloc.o
 
@@ -21,7 +27,7 @@ prod: all
 all: $(LIBS)
 
 debian: all
-	scripts/package-deb
+	VERSION_ABI=$(VERSION_ABI) MAJOR=$(MAJOR) BASENAME=$(BASENAME) scripts/package-deb
 
 quality:
 	cppcheck --enable=all --force --quiet *.c *.h
@@ -41,7 +47,7 @@ sanitize: CFLAGS += $(SANITIZE)
 sanitize: debug
 
 libpgalloc.so.0: $(OBJS)
-	$(CC) -shared -Wl,-soname,libpgalloc.so.0 -o libpgalloc.so.0 $(OBJS)
+	$(CC) -shared -Wl,-soname,$(DYNLIB) -o $(DYNLIB) $(OBJS)
 
 libpgalloc.a: $(OBJS)
 	$(AR) -r libpgalloc.a $(OBJS)

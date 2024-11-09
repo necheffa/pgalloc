@@ -24,24 +24,17 @@ function cleanup {
 }
 trap cleanup EXIT
 
-if [[ -v ABI ]] && [[ -n "$ABI" ]]; then
-    MAJOR="$(echo $ABI | awk -F. '{print $1}')"
-else
-    echo "The ABI is not set."
-    exit 1
-fi
-
 cd "$WRKDIR"
 mkdir -p "$PKGDIR"/opt/catloaf/lib
 
 BINDST="$PKGDIR"/opt/catloaf/lib
 
-cp "$CURDIR"/libpgalloc.so."$MAJOR" "$BINDST"/libpgalloc.so."$ABI"
+cp "$CURDIR"/"$BASENAME"."$MAJOR" "$BINDST"/"$BASENAME"."$VERSION_ABI"
 cp "$CURDIR"/libpgalloc.a "$BINDST"/
 
 cd "$BINDST"
-ln -s libpgalloc.so."$ABI" libpgalloc.so."$MAJOR"
-ln -s libpgalloc.so."$ABI" libpgalloc.so
+ln -s "$BASENAME"."$VERSION_ABI" "$BASENAME"."$MAJOR"
+ln -s "$BASENAME"."$VERSION_ABI" "$BASENAME"
 cd "$WRKDIR"
 
 INCDIR="$PKGDIR"/opt/catloaf/include/pgalloc
