@@ -76,9 +76,10 @@ static void test_blocks_free_half(void **state)
 {
     for (int i = 0; i < LEN / 2; i++) {
         pgfree(nodes[i]);
+        nodes[i] = NULL; // avoid double free() in teardown.
     }
 
-    PageHeader *phNode = PgPageInfo(nodes[0]);
+    PageHeader *phNode = PgPageInfo(nodes[LEN - 1]);
     PageHeader *phArr = PgPageInfo(nodes);
 
     assert_true(32 == PgUsedBlocks(phNode));
