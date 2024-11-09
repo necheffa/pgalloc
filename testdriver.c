@@ -82,6 +82,7 @@ static int teardown_odd_nodes(void **state)
     return 0;
 }
 
+// When many blocks are allocated in a single page the page state should remain consistant.
 static void test_blocks_first_alloc(void **state)
 {
     PageHeader *phNode = PgPageInfo(nodes[0]);
@@ -100,6 +101,7 @@ static void test_blocks_first_alloc(void **state)
     assert_true(0 == PgFreeBlocks(phArr));
 }
 
+// When some of the blocks in a page are freed the page state should remain consistant.
 static void test_blocks_free_half(void **state)
 {
     for (int i = 0; i < LEN / 2; i++) {
@@ -123,6 +125,7 @@ static void test_blocks_free_half(void **state)
     assert_true(0 == PgFreeBlocks(phArr));
 }
 
+// When an alloc request makes use of recycled blocks the calls should succeed.
 static void test_blocks_realloc(void **state)
 {
     for (int i = 0; i < LEN; i++) {
@@ -149,6 +152,7 @@ static void test_blocks_realloc(void **state)
     assert_true(0 == PgFreeBlocks(phArr));
 }
 
+// When an alloc request is not an even power of 2 the calls should succeed.
 static void test_blocks_first_odd_alloc(void **state)
 {
     PageHeader *phNode = PgPageInfo(oddNodes[0]);
@@ -167,6 +171,7 @@ static void test_blocks_first_odd_alloc(void **state)
     assert_true(0 == PgFreeBlocks(phArr));
 }
 
+// When alloc requests create multiple pages for a single block size the calls should succeed.
 static void test_blocks_span_pages(void **state)
 {
     const unsigned int num = 16;
@@ -195,6 +200,23 @@ static void test_blocks_span_pages(void **state)
     pgfree(bigArr);
 }
 
+// When the maximum byte request per-page is passed to pgalloc the call should succeed.
+static void test_max_block_per_page(void **state)
+{
+    // NOTE: need to recompute this if the PageHeader or PAGE_SIZE changes.
+    // based on 8192 - sizeof(PageHeader) where sizeof(PageHeader) == 40 bytes.
+    void *big = pgalloc(8152);
+    pgfree(big);
+}
+
+// When greater than the maximum byte request per-page is passed to pgalloc the call should return NULL.
+static void test_greater_than_max_request_per_page(void **state)
+{
+    void *big = pgalloc(8153);
+    assert_true(NULL == big);
+    pgfree(big);
+}
+
 int main(void)
 {
     const struct CMUnitTest tests[] = {
@@ -203,6 +225,8 @@ int main(void)
         cmocka_unit_test_setup_teardown(test_blocks_realloc, setup_nodes, teardown_nodes),
         cmocka_unit_test_setup_teardown(test_blocks_first_odd_alloc, setup_odd_nodes, teardown_odd_nodes),
         cmocka_unit_test(test_blocks_span_pages),
+        cmocka_unit_test(test_max_block_per_page),
+        cmocka_unit_test(test_greater_than_max_request_per_page),
     };
 
     return cmocka_run_group_tests_name("pgalloc", tests, NULL, NULL);
