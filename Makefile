@@ -14,6 +14,10 @@ LIBS=libpgalloc.a \
 
 OBJS=pgalloc.o
 
+prod: CFLAGS += $(PROD)
+prod: CFLAGS += $(CPPFLAGS)
+prod: all
+
 all: $(LIBS)
 
 debian: all
@@ -30,19 +34,11 @@ unittests: libpgalloc.a
 	$(CC) $(CFLAGS) $(CCLDFLAGS) -o unittests testdriver.c libpgalloc.a -lcmocka
 	./unittests 2>&1 | tee test.log && echo "All tests complete, results located in test.log"
 
-pgtest: libpgalloc.a
-	$(CC) $(CFLAGS) -o pgtest pgtest.c libpgalloc.a
-
 debug: CFLAGS += $(DEBUG)
 debug: all unittests
 
 sanitize: CFLAGS += $(SANITIZE)
 sanitize: debug
-
-prod: CFLAGS += $(PROD)
-prod: CFLAGS += $(CPPFLAGS)
-prod: all
-	$(SRP) $(LIBS) $(OBJS) $(BINS)
 
 libpgalloc.so.0: $(OBJS)
 	$(CC) -shared -Wl,-soname,libpgalloc.so.0 -o libpgalloc.so.0 $(OBJS)
