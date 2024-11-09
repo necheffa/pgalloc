@@ -12,17 +12,18 @@ CCLDFLAGS=-Wl,-z,relro,-z,now -fPIC
 LIBS=libpgalloc.a \
      libpgalloc.so.0
 
-BINS=pgtest
-
 OBJS=pgalloc.o
 
-all: $(BINS) $(LIBS)
+all: $(LIBS)
 
 debian: all
 	scripts/package-deb
 
 quality:
 	cppcheck --enable=all --force --quiet *.c *.h
+
+coverage: CFLAGS += --coverage
+coverage: debug
 
 unittests: CFLAGS += -Wno-unused-parameter
 unittests: libpgalloc.a
@@ -53,4 +54,4 @@ libpgalloc.a: $(OBJS)
 	$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm -f $(OBJS) $(BINS) $(LIBS) *.deb unittests test.log
+	rm -f $(OBJS) $(LIBS) *.deb unittests test.log *.gcov *.gcda *.gcno
