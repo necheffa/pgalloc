@@ -123,9 +123,12 @@ void pgfree(void *ptr) {
 
         headPage = pages[i];
         ph->nextPage = headPage;
-        ((PageHeader *)headPage)->prevPage = page;
-        pages[i] = page;
 
+        if (headPage) {
+            ((PageHeader *)headPage)->prevPage = page;
+        }
+
+        pages[i] = page;
     }
 
     if ( (ph->freeList) != NULL ) {
@@ -241,7 +244,13 @@ void *pgalloc(size_t bytes) {
         (ph->blocksUsed)++;
         (ph->avl) -= (ph->blockSize);
 
-        pages[index] = page;
+        if (blocksLeft(page) == 0) {
+            // it was the maximum request per page!
+            addFullList(page);
+        } else {
+            pages[index] = page;
+        }
+
         // at this point we should NEVER return a NULL pointer
         assert((ph->avl));
         return (ph->avl);
