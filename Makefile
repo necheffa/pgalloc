@@ -32,7 +32,7 @@ pgtest: libpgalloc.a
 	$(CC) $(CFLAGS) -o pgtest pgtest.c libpgalloc.a
 
 debug: CFLAGS += $(DEBUG)
-debug: all
+debug: all unittests
 
 sanitize: CFLAGS += $(SANITIZE)
 sanitize: debug

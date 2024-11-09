@@ -54,19 +54,78 @@ static int teardown_nodes(void **state)
     return 0;
 }
 
-static void test_used_blocks_first_alloc(void **state)
+static void test_blocks_first_alloc(void **state)
 {
     PageHeader *phNode = PgPageInfo(nodes[0]);
     PageHeader *phArr = PgPageInfo(nodes);
 
     assert_true(64 == PgUsedBlocks(phNode));
     assert_true(1 == PgUsedBlocks(phArr));
+
+    assert_true(64 == PgBlockSize(phNode));
+    assert_true(512 == PgBlockSize(phArr));
+
+    assert_true(127 == PgMaxBlocks(phNode));
+    assert_true(15 == PgMaxBlocks(phArr));
+
+    assert_true(0 == PgFreeBlocks(phNode));
+    assert_true(0 == PgFreeBlocks(phArr));
+}
+
+static void test_blocks_free_half(void **state)
+{
+    for (int i = 0; i < LEN / 2; i++) {
+        pgfree(nodes[i]);
+    }
+
+    PageHeader *phNode = PgPageInfo(nodes[0]);
+    PageHeader *phArr = PgPageInfo(nodes);
+
+    assert_true(32 == PgUsedBlocks(phNode));
+    assert_true(1 == PgUsedBlocks(phArr));
+
+    assert_true(64 == PgBlockSize(phNode));
+    assert_true(512 == PgBlockSize(phArr));
+
+    assert_true(127 == PgMaxBlocks(phNode));
+    assert_true(15 == PgMaxBlocks(phArr));
+
+    assert_true(32 == PgFreeBlocks(phNode));
+    assert_true(0 == PgFreeBlocks(phArr));
+}
+
+static void test_blocks_realloc(void **state)
+{
+    for (int i = 0; i < LEN; i++) {
+        pgfree(nodes[i]);
+    }
+
+    for (int i = 0; i < LEN; i++) {
+        nodes[i] = NewNode();
+    }
+
+    PageHeader *phNode = PgPageInfo(nodes[0]);
+    PageHeader *phArr = PgPageInfo(nodes);
+
+    assert_true(64 == PgUsedBlocks(phNode));
+    assert_true(1 == PgUsedBlocks(phArr));
+
+    assert_true(64 == PgBlockSize(phNode));
+    assert_true(512 == PgBlockSize(phArr));
+
+    assert_true(127 == PgMaxBlocks(phNode));
+    assert_true(15 == PgMaxBlocks(phArr));
+
+    assert_true(0 == PgFreeBlocks(phNode));
+    assert_true(0 == PgFreeBlocks(phArr));
 }
 
 int main(void)
 {
     const struct CMUnitTest tests[] = {
-        cmocka_unit_test_setup_teardown(test_used_blocks_first_alloc, setup_nodes, teardown_nodes),
+        cmocka_unit_test_setup_teardown(test_blocks_first_alloc, setup_nodes, teardown_nodes),
+        cmocka_unit_test_setup_teardown(test_blocks_free_half, setup_nodes, teardown_nodes),
+        cmocka_unit_test_setup_teardown(test_blocks_realloc, setup_nodes, teardown_nodes),
     };
 
     return cmocka_run_group_tests_name("pgalloc", tests, NULL, NULL);

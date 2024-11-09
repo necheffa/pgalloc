@@ -43,8 +43,14 @@ void pgfree(void *);
  */
 void pgview(void);
 
-PageHeader *PgPageInfo(void *p);
+PageHeader *PgPageInfo(void *);
 
-unsigned int PgUsedBlocks(PageHeader *ph);
+unsigned int PgUsedBlocks(PageHeader *);
+
+unsigned int PgBlockSize(PageHeader *);
+
+unsigned int PgMaxBlocks(PageHeader *);
+
+unsigned int PgFreeBlocks(PageHeader *);
 
 #endif /* PGALLOC_H */

@@ -462,3 +462,37 @@ unsigned int PgUsedBlocks(PageHeader *ph)
 
     return 0;
 }
+
+unsigned int PgBlockSize(PageHeader *ph)
+{
+    if (ph) {
+        return ph->blockSize;
+    }
+
+    return 0;
+}
+
+unsigned int PgMaxBlocks(PageHeader *ph)
+{
+    if (ph) {
+        return blocksPerPage(ph);
+    }
+
+    return 0;
+}
+
+unsigned int PgFreeBlocks(PageHeader *ph)
+{
+    void *freeBlock = ph->freeList;
+    if (freeBlock) {
+        unsigned int num = 0;
+        while (freeBlock) {
+            num++;
+            freeBlock = (void *) *((uintptr_t **)freeBlock);
+        }
+
+        return num;
+    }
+
+    return 0;
+}
