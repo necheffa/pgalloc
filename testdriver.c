@@ -206,6 +206,7 @@ static void test_max_block_per_page(void **state)
     // NOTE: need to recompute this if the PageHeader or PAGE_SIZE changes.
     // based on 8192 - sizeof(PageHeader) where sizeof(PageHeader) == 40 bytes.
     void *big = pgalloc(8152);
+    assert_true(NULL != big);
     pgfree(big);
 }
 
