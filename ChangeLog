@@ -1,5 +1,6 @@
 XXXX-YY-ZZ Alexander Necheff <alex@necheff.net>
     * Set version to 1.3.0.
+    * Set ABI to 0.1.0.
     * Automated test suite.
 
 2023-05-27 Alexander Necheff <alex@necheff.net>
