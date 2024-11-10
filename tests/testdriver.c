@@ -215,7 +215,15 @@ static void test_max_block_per_page(void **state)
     // based on 8192 - sizeof(PageHeader) where sizeof(PageHeader) == 40 bytes.
     void *big = pgalloc(8152);
     assert_true(NULL != big);
+    void *biggie = pgalloc(8152);
+    assert_true(NULL != biggie);
+
     pgfree(big);
+    big = pgalloc(8152);
+    assert_true(NULL != big);
+
+    pgfree(big);
+    pgfree(biggie);
 }
 
 // When greater than the maximum byte request per-page is passed to pgalloc the call should return NULL.
