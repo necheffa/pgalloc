@@ -26,5 +26,5 @@ Within newPage() is a call to memalign() which as I understand it is a very
 Linux specific call.
 I have no intentions of supporting Windows or other non-Unix operating systems.
 
-This library is licensed under the terms of the LGPLv2. More details may be found
-in the LICENSE file in this source directory.
+This library is licensed under the terms of the LGPLv3. More details may be found
+in the COPYING and COPYING.LESSER file in this source directory.

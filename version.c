@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Alexander Necheff
-// This program is licensed under the terms of the LGPLv2.1.
-// See the LICENSE file that came packaged with this source code for the full terms.
+// This program is licensed under the terms of the LGPLv3.
+// See the COPYING and COPYING.LESSER files that came packaged with this source code for the full terms.
 
 /*
  * Displays the version string of the currently linked pgalloc.
