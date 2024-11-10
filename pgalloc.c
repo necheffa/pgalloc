@@ -168,9 +168,8 @@ static void *newPage(unsigned int blockSize) {
     /*
      * Aligned on PAGE_SIZE to make pageMask work in getPage()
      */
-    if ( (posix_memalign(&page, PAGE_SIZE, PAGE_SIZE)) ) {
-        perror("");
-        exit(-1);
+    if ((posix_memalign(&page, PAGE_SIZE, PAGE_SIZE))) {
+        return NULL;
     }
 
     page = memset(page, 0, PAGE_SIZE);
@@ -239,6 +238,9 @@ void *pgalloc(size_t bytes) {
         // allocate new page
 
         page = newPage((index + 1) * BBLOCK_SIZE);
+        if (!page) {
+            return NULL;
+        }
         PageHeader *ph = (PageHeader *)page;
 
         (ph->blocksUsed)++;
