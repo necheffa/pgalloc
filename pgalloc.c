@@ -219,7 +219,6 @@ void *pgalloc(size_t bytes) {
 
     if (bytes > maxPageData) {
         // currently do not have a way to span multiple pages
-        fprintf(stderr, "request exceeds page size\n");
         return NULL;
     }
 
@@ -227,8 +226,6 @@ void *pgalloc(size_t bytes) {
 
     if (index > PAGES) {
         //TODO: here is where we would start using the best fit algorithm
-        fprintf(stderr, "index out of bounds\n");
-        fflush(stdout);
         return NULL;
     }
 
