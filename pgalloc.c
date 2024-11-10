@@ -224,7 +224,7 @@ void *pgalloc(size_t bytes) {
 
     unsigned int index = getPageIndex(bytes);
 
-    if (index > PAGES) {
+    if (index >= PAGES) {
         //TODO: here is where we would start using the best fit algorithm
         return NULL;
     }
