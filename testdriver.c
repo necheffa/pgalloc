@@ -229,6 +229,25 @@ static void test_maximum_page_index(void **state)
     pgfree(big);
 }
 
+// When data is stored it is able to be retreaved.
+static void test_basic_int_array(void **state)
+{
+    int **big = pgalloc(sizeof(*big) * LEN);
+    for (int i = 0; i < LEN; i++) {
+        int *p = pgalloc(sizeof(*p));
+        *p = i;
+        big[i] = p;
+    }
+
+    for (int i = 0; i < LEN; i++) {
+        int *p = big[i];
+        assert_true(i == *p);
+        pgfree(p);
+    }
+
+    pgfree(big);
+}
+
 int main(void)
 {
     const struct CMUnitTest tests[] = {
@@ -240,6 +259,7 @@ int main(void)
         cmocka_unit_test(test_max_block_per_page),
         cmocka_unit_test(test_greater_than_max_request_per_page),
         cmocka_unit_test(test_maximum_page_index),
+        cmocka_unit_test(test_basic_int_array),
     };
 
     return cmocka_run_group_tests_name("pgalloc", tests, NULL, NULL);
