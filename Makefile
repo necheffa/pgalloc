@@ -32,7 +32,7 @@ debian: all
 	VERSION_ABI=$(VERSION_ABI) MAJOR=$(MAJOR) BASENAME=$(BASENAME) scripts/package-deb
 
 quality:
-	cppcheck --enable=all --force --quiet *.c *.h
+	cppcheck --suppress=missingIncludeSystem --inline-suppr --enable=all --force --quiet -Iinclude/ *.c tests/*.c
 
 coverage: CFLAGS += --coverage
 coverage: debug

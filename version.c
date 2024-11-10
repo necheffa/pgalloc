@@ -7,6 +7,7 @@
  * To access, include `extern char pgalloc_version[];` in your code.
  */
 char pgalloc_version[] = {
+// cppcheck-suppress missingInclude
 #include "version.inc"
 };
 

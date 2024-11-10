@@ -306,6 +306,7 @@ void *pgalloc(size_t bytes) {
  * used to view the state of allocated pages
  * mainly for debugging purposes
  */
+// cppcheck-suppress unusedFunction
 void pgview(void) {
 
     void *curFullPage = fullPages;

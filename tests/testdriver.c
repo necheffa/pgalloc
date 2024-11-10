@@ -22,6 +22,14 @@ struct Node {
 static Node *NewNode(void)
 {
     Node *n = pgalloc(sizeof(*n));
+    n->a = 1.0;
+    n->b = 1.0;
+    n->c = 1.0;
+    n->d = 1.0;
+    n->e = 1.0;
+    n->f = 1.0;
+    n->g = 1.0;
+    n->h = 1.0;
     return n;
 }
 
