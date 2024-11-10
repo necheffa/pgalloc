@@ -2,7 +2,7 @@ CC=/usr/bin/gcc
 #CC=/usr/bin/clang
 SRP=/usr/bin/strip
 
-CFLAGS=-Wall -Wextra -Wformat -std=c17 -pedantic -fPIC
+CFLAGS=-Wall -Wextra -Wformat -std=c17 -pedantic -fPIC -Werror
 PROD=-fstack-protector-strong -O3 -flto -DNDEBUG=1
 CPPFLAGS=-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
 SANITIZE=-fsanitize=address -fsanitize=undefined -fsanitize=leak

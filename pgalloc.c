@@ -178,7 +178,7 @@ static void *newPage(unsigned int blockSize) {
     header->blockSize = blockSize;
     header->blocksUsed = 0;
     header->freeList = NULL;
-    header->avl = (page + PAGE_SIZE);
+    header->avl = (void *)((uintptr_t)page + PAGE_SIZE);
     header->nextPage = NULL;
     header->prevPage = NULL;
 
@@ -243,8 +243,8 @@ void *pgalloc(size_t bytes) {
         }
         PageHeader *ph = (PageHeader *)page;
 
-        (ph->blocksUsed)++;
-        (ph->avl) -= (ph->blockSize);
+        ph->blocksUsed++;
+        ph->avl = (void *)((uintptr_t)(ph->avl) - ph->blockSize);
 
         if (blocksLeft(page) == 0) {
             // it was the maximum request per page!
@@ -282,17 +282,16 @@ void *pgalloc(size_t bytes) {
     if (remainingBlocks >= 2) {
         // add block to page
 
-        (ph->blocksUsed)++;
-        (ph->avl) -= (ph->blockSize);
+        ph->blocksUsed++;
+        ph->avl = (void *)((uintptr_t)ph->avl - ph->blockSize);
 
         return (ph->avl);
 
     } else if (remainingBlocks == 1) {
-
         // need to move to a new page
 
-        (ph->blocksUsed)++;
-        ph->avl -= ph->blockSize;
+        ph->blocksUsed++;
+        ph->avl = (void *)((uintptr_t)ph->avl - ph->blockSize);
 
         /* will either be NULL or if there are
          * partially free pages we'll start filling those
