@@ -9,6 +9,8 @@ XXXX-YY-ZZ Alexander Necheff <alex@necheff.net>
     * Replace nonstandard void pointer arithmetic with uintptr_t arithmetic. (issue #2)
     * Removed diagnostic print to STDERR for certain pgalloc() failures.
     * Fixed a number of cppcheck findings. (issue #14)
+    * Target x86-64 v3 by default.
+    * Enhance production compiler flags to include additional security hardening consistent with GCC 14 -fhardened. (issue #11)
     * Automated test suite. (issue #13)
 
 2023-05-27 Alexander Necheff <alex@necheff.net>
