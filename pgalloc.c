@@ -190,12 +190,7 @@ static void *newPage(unsigned int blockSize) {
  * allocated in the referenced page
  */
 static unsigned int blocksLeft(void *page) {
-
-    unsigned int blockSize = ((PageHeader *)page)->blockSize;
-    unsigned int blocksPerPage =
-        (PAGE_SIZE - sizeof(PageHeader)) / blockSize;
-
-    return blocksPerPage - ((PageHeader *)page)->blocksUsed;
+    return blocksPerPage(page) - ((PageHeader *)page)->blocksUsed;
 }
 
 /**
@@ -203,7 +198,6 @@ static unsigned int blocksLeft(void *page) {
  * is able to hold
  */
 static unsigned int blocksPerPage(void *page) {
-
     unsigned int blockSize = ((PageHeader *)page)->blockSize;
 
     return (PAGE_SIZE - sizeof(PageHeader)) / blockSize;
