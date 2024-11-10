@@ -36,12 +36,48 @@ USA
 
 typedef struct PageHeader PageHeader;
 
-/* see function definitions for documentation */
+/*
+ * Adds specified page to the fullPages list.
+ */
 static void addFullList(void *);
+
+/*
+ * Removes specified page from the fullPages list, typically when a full page has blocks freed.
+ * Returns a reference to the page.
+ */
 static void *removeFullList(void *);
+
+/*
+ * Return a pointer to the page that holds the block referenced.
+ */
 static void *getPage(void *);
+
+/*
+ * Return the total capacity for blocks the specified page has.
+ * This includes space currently occupied by allocated blocks.
+ */
 static unsigned int blocksPerPage(void *);
+
+/*
+ * Print diagnostic information about the specified page.
+ */
 static void printPage(void *);
+
+/*
+ * Return a new page using blocks of the specified block size and byte aligned on PAGE_SIZE or NULL on error.
+ */
+static void *newPage(unsigned int);
+
+/*
+ * Return an index into the page table corrisponding to the specified byte request.
+ */
+static unsigned int getPageIndex(unsigned int);
+
+/*
+ * Return the number of blocks available to be allocated in the specified page.
+ * This includes both never before allocated blocks as well as recycled blocks.
+ */
+static unsigned int blocksLeft(void *);
 
 /*
  * Defines how bookkeeping is stored at the head of a given page.
@@ -56,7 +92,8 @@ struct PageHeader {
 };
 
 
-/* Used to track the largest data that can be stored in a single page
+/*
+ * Used to track the largest data that can be stored in a single page
  */
 static unsigned int maxPageData = PAGE_SIZE - sizeof(PageHeader);
 
@@ -64,21 +101,18 @@ static unsigned int maxPageData = PAGE_SIZE - sizeof(PageHeader);
 /* track pages with avilable blocks */
 static void *pages[PAGES] = { NULL };
 
-/* track full pages for debug purposes only
- * see pgview()
+/*
+ * Track full pages for debug purposes only, see pgview()
  */
 static void *fullPages = NULL;
 
-/* Mainly used as a way to get a pointer to front
+/*
+ * Mainly used as a way to get a pointer to front
  * of page given a pointer to an arbitrary point
  * in page. See pgfree().
  */
 static uintptr_t pageMask = ~((uintptr_t) (PAGE_SIZE - 1));
 
-/**
- * Convert a byte request into an index in to
- * pages[]
- */
 static unsigned int getPageIndex(unsigned int byteRequest)
 {
     unsigned int i = 0;
@@ -97,11 +131,6 @@ static unsigned int getPageIndex(unsigned int byteRequest)
     return i;
 }
 
-/**
- * Recycle the block refered to by ptr.
- *
- * pgfree() takes no action when ptr is NULL.
- */
 void pgfree(void *ptr)
 {
     if (!ptr) {
@@ -141,19 +170,12 @@ void pgfree(void *ptr)
     (ph->blocksUsed)--;
 }
 
-/**
- * gets a pointer to the page that holds the block
- * referenced by ptr
- */
 static void *getPage(void *ptr)
 {
     void *page = (void *) ((((uintptr_t) ptr) & pageMask));
     return page;
 }
 
-/**
- * creates a new page using blocks of size blockSize
- */
 static void *newPage(unsigned int blockSize)
 {
     void *page = NULL;
@@ -178,19 +200,11 @@ static void *newPage(unsigned int blockSize)
     return page;
 }
 
-/**
- * calculates how many blocks are available to be
- * allocated in the referenced page
- */
 static unsigned int blocksLeft(void *page)
 {
     return blocksPerPage(page) - ((PageHeader *)page)->blocksUsed;
 }
 
-/**
- * calculate the total blocks a particular page
- * is able to hold
- */
 static unsigned int blocksPerPage(void *page)
 {
     unsigned int blockSize = ((PageHeader *)page)->blockSize;
@@ -198,10 +212,6 @@ static unsigned int blocksPerPage(void *page)
     return (PAGE_SIZE - sizeof(PageHeader)) / blockSize;
 }
 
-/**
- * returns a ptr to a block able to hold
- * the bytes requested or returns NULL on error
- */
 void *pgalloc(size_t bytes)
 {
     void *page = NULL;
@@ -290,10 +300,6 @@ void *pgalloc(size_t bytes)
     return NULL;
 }
 
-/**
- * used to view the state of allocated pages
- * mainly for debugging purposes
- */
 // cppcheck-suppress unusedFunction
 void pgview(void)
 {
@@ -327,9 +333,6 @@ void pgview(void)
     }
 }
 
-/**
- * helper function to simplify pgview() logic
- */
 static void printPage(void *page)
 {
     PageHeader *ph = (PageHeader *)page;
@@ -353,9 +356,6 @@ static void printPage(void *page)
     }
 }
 
-/**
- * adds full pages to the fullPages list
- */
 static void addFullList(void *page)
 {
     PageHeader *ph = (PageHeader *)page;
@@ -387,10 +387,6 @@ static void addFullList(void *page)
     }
 }
 
-/**
- * removes pages from the fullPages list
- * typically when a full page has blocks freed
- */
 static void *removeFullList(void *page)
 {
     PageHeader *ph = (PageHeader *)page;
