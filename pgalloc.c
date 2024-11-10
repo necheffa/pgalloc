@@ -27,7 +27,7 @@ USA
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "pgalloc.h"
+#include <pgalloc.h>
 
 // need to calc max PAGES at compile time
 #define PAGES          1024

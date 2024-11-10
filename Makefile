@@ -7,7 +7,8 @@ PROD=-fstack-protector-strong -O3 -flto -DNDEBUG=1
 CPPFLAGS=-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
 SANITIZE=-fsanitize=address -fsanitize=undefined -fsanitize=leak
 DEBUG=-ggdb -fno-omit-frame-pointer -O0
-CCLDFLAGS=-Wl,-z,relro,-z,now -fPIC
+CCLDFLAGS=-Wl,-z,relro,-z,now -fPIC $(LIBSEARCH)
+LIBSEARCH=-Iinclude/
 
 VERSION_ABI:=$(shell cat VERSION_ABI)
 MAJOR:=$(shell awk -F. '{print $$1}' < VERSION_ABI)
@@ -38,7 +39,7 @@ coverage: debug
 
 unittests: CFLAGS += -Wno-unused-parameter
 unittests: libpgalloc.a
-	$(CC) $(CFLAGS) $(CCLDFLAGS) -o unittests testdriver.c libpgalloc.a -lcmocka
+	$(CC) $(CFLAGS) $(CCLDFLAGS) -o unittests tests/testdriver.c libpgalloc.a -lcmocka
 	./unittests 2>&1 | tee test.log && echo "All tests complete, results located in test.log"
 
 debug: CFLAGS += $(DEBUG)
@@ -59,7 +60,7 @@ version.inc:
 	scripts/version
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c $<
+	$(CC) $(CFLAGS) $(LIBSEARCH) -c $<
 
 clean:
 	rm -f $(OBJS) $(LIBS) *.deb unittests test.log *.gcov *.gcda *.gcno version.inc

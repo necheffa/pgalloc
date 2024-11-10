@@ -3,7 +3,7 @@
 #include <setjmp.h>
 #include <cmocka.h>
 
-#include "pgalloc.h"
+#include <pgalloc.h>
 
 #define LEN 64
 

@@ -40,7 +40,7 @@ cd "$WRKDIR"
 INCDIR="$PKGDIR"/opt/catloaf/include/pgalloc
 mkdir -p "$INCDIR"
 
-cp "$CURDIR"/*.h "$INCDIR"/
+cp "$CURDIR"/include/*.h "$INCDIR"/
 
 mkdir -p "$PKGDIR"/DEBIAN
 
