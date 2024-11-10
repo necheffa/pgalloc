@@ -218,6 +218,17 @@ static void test_greater_than_max_request_per_page(void **state)
     pgfree(big);
 }
 
+// When a byte request exceeds the maximum page index, NULL is returned.
+static void test_maximum_page_index(void **state)
+{
+    // NOTE: due to the current design, the maximum possible page index is 1019 from a byte request of 8152.
+    // This is because beyond 8152 bytes, we hit a maximum byte request, therefore never stress the maximum page index.
+    // This test is in place should circumstances ever change.
+    void *big = pgalloc(8200);
+    assert_true(NULL == big);
+    pgfree(big);
+}
+
 int main(void)
 {
     const struct CMUnitTest tests[] = {
@@ -228,6 +239,7 @@ int main(void)
         cmocka_unit_test(test_blocks_span_pages),
         cmocka_unit_test(test_max_block_per_page),
         cmocka_unit_test(test_greater_than_max_request_per_page),
+        cmocka_unit_test(test_maximum_page_index),
     };
 
     return cmocka_run_group_tests_name("pgalloc", tests, NULL, NULL);
