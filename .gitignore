@@ -5,3 +5,4 @@ pgtest
 *.deb
 unittests
 test.log
+version.inc

@@ -18,7 +18,8 @@ DYNLIB:=$(BASENAME).$(MAJOR)
 LIBS=libpgalloc.a \
      $(DYNLIB)
 
-OBJS=pgalloc.o
+OBJS=pgalloc.o \
+     version.o
 
 prod: CFLAGS += $(PROD)
 prod: CFLAGS += $(CPPFLAGS)
@@ -52,8 +53,13 @@ libpgalloc.so.0: $(OBJS)
 libpgalloc.a: $(OBJS)
 	$(AR) -r libpgalloc.a $(OBJS)
 
+version.o: version.inc
+
+version.inc:
+	scripts/version
+
 %.o: %.c
 	$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm -f $(OBJS) $(LIBS) *.deb unittests test.log *.gcov *.gcda *.gcno
+	rm -f $(OBJS) $(LIBS) *.deb unittests test.log *.gcov *.gcda *.gcno version.inc

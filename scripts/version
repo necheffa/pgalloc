@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+while IFS= read -r -n1 c; do echo -n "'$c',"; done < VERSION > version.inc
+echo -n "'\0'" >> version.inc
