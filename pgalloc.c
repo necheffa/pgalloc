@@ -358,7 +358,7 @@ static void printPage(void *page) {
 
     printf("Page at[%p] ", page);
     printf("size[%u] ", ph->blockSize);
-    printf("max[%d] ", blocksPerPage(page));
+    printf("max[%u] ", blocksPerPage(page));
     printf("used[%u] ", ph->blocksUsed);
     printf("avl[%p] ", ph->avl);
 
