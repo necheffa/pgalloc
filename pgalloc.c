@@ -214,7 +214,7 @@ void *pgalloc(size_t bytes)
     unsigned int index = getPageIndex(bytes);
 
     if (index >= PAGES) {
-        //TODO: here is where we would start using the best fit algorithm
+        //NOTE: here is where we would start using the best fit algorithm, refer to issue #1 in Gitea.
         return NULL;
     }
 
@@ -358,9 +358,9 @@ static void printPage(void *page)
  */
 static void addFullList(void *page)
 {
-    //TODO: clean up - consolidate wasteful declarations
+    PageHeader *ph = (PageHeader *)page;
+
     if (fullPages == NULL) {
-        PageHeader *ph = (PageHeader *)page;
         ph->nextPage = NULL;
         ph->prevPage = NULL;
         ph->freeList = NULL;
@@ -369,21 +369,19 @@ static void addFullList(void *page)
     } else {
         PageHeader *headPage = (PageHeader *)fullPages;
         PageHeader *prevPage = NULL;
-        PageHeader *ph = (PageHeader *)page;
 
         ph->freeList = NULL;
+        ph->nextPage = fullPages;
 
         if ((headPage->prevPage) == NULL) {
             // list only has a single page
+            ph->prevPage = fullPages;
             headPage->nextPage = page;
             headPage->prevPage = page;
-            ph->prevPage = fullPages;
-            ph->nextPage = fullPages;
         } else {
             prevPage = headPage->prevPage;
             prevPage->nextPage = page;
             ph->prevPage = prevPage;
-            ph->nextPage = fullPages;
             headPage->prevPage = page;
         }
     }
