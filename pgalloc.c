@@ -79,16 +79,13 @@ static uintptr_t pageMask = ~((uintptr_t) (PAGE_SIZE - 1));
  * Convert a byte request into an index in to
  * pages[]
  */
-static unsigned int getPageIndex(unsigned int byteRequest) {
-
+static unsigned int getPageIndex(unsigned int byteRequest)
+{
     unsigned int i = 0;
 
-    if ( (byteRequest % BBLOCK_SIZE) == 0 ) {
-
+    if ((byteRequest % BBLOCK_SIZE) == 0) {
         i = byteRequest / BBLOCK_SIZE;
-
     } else {
-
         i = byteRequest % BBLOCK_SIZE;
         i = BBLOCK_SIZE - i + byteRequest;
         i /= BBLOCK_SIZE;
@@ -105,8 +102,8 @@ static unsigned int getPageIndex(unsigned int byteRequest) {
  *
  * pgfree() takes no action when ptr is NULL.
  */
-void pgfree(void *ptr) {
-
+void pgfree(void *ptr)
+{
     if (!ptr) {
         return;
     }
@@ -115,7 +112,7 @@ void pgfree(void *ptr) {
     void *headPage = NULL;
     PageHeader *ph = (PageHeader *)page;
 
-    if ( (blocksPerPage(page)) == ph->blocksUsed ) {
+    if ((blocksPerPage(page)) == ph->blocksUsed) {
         // page was previously full; add into avl pages
         unsigned int i = getPageIndex(ph->blockSize);
 
@@ -131,19 +128,16 @@ void pgfree(void *ptr) {
         pages[i] = page;
     }
 
-    if ( (ph->freeList) != NULL ) {
-
+    if ((ph->freeList) != NULL) {
         *((uintptr_t *)ptr) = (uintptr_t) (ph->freeList);
     } else {
-
         *((uintptr_t *)ptr) = (uintptr_t) NULL;
     }
 
     ph->freeList = &(*((uintptr_t *)ptr));
 
     // ph->freeList should never be NULL at this point
-    assert( (ph->freeList) );
-
+    assert(ph->freeList);
     (ph->blocksUsed)--;
 }
 
@@ -151,18 +145,17 @@ void pgfree(void *ptr) {
  * gets a pointer to the page that holds the block
  * referenced by ptr
  */
-static void *getPage(void *ptr) {
-
+static void *getPage(void *ptr)
+{
     void *page = (void *) ((((uintptr_t) ptr) & pageMask));
-
     return page;
 }
 
 /**
  * creates a new page using blocks of size blockSize
  */
-static void *newPage(unsigned int blockSize) {
-
+static void *newPage(unsigned int blockSize)
+{
     void *page = NULL;
 
     /*
@@ -189,7 +182,8 @@ static void *newPage(unsigned int blockSize) {
  * calculates how many blocks are available to be
  * allocated in the referenced page
  */
-static unsigned int blocksLeft(void *page) {
+static unsigned int blocksLeft(void *page)
+{
     return blocksPerPage(page) - ((PageHeader *)page)->blocksUsed;
 }
 
@@ -197,7 +191,8 @@ static unsigned int blocksLeft(void *page) {
  * calculate the total blocks a particular page
  * is able to hold
  */
-static unsigned int blocksPerPage(void *page) {
+static unsigned int blocksPerPage(void *page)
+{
     unsigned int blockSize = ((PageHeader *)page)->blockSize;
 
     return (PAGE_SIZE - sizeof(PageHeader)) / blockSize;
@@ -207,8 +202,8 @@ static unsigned int blocksPerPage(void *page) {
  * returns a ptr to a block able to hold
  * the bytes requested or returns NULL on error
  */
-void *pgalloc(size_t bytes) {
-
+void *pgalloc(size_t bytes)
+{
     void *page = NULL;
 
     if (bytes > maxPageData) {
@@ -247,7 +242,6 @@ void *pgalloc(size_t bytes) {
         // at this point we should NEVER return a NULL pointer
         assert((ph->avl));
         return (ph->avl);
-
     }
 
     unsigned int remainingBlocks = blocksLeft(page);
@@ -262,7 +256,7 @@ void *pgalloc(size_t bytes) {
 
         (ph->blocksUsed)++;
 
-        if ( (blocksLeft(page)) == 0 ) {
+        if ((blocksLeft(page)) == 0) {
             pages[index] = ((PageHeader *)page)->nextPage;
             addFullList(page);
         }
@@ -272,15 +266,12 @@ void *pgalloc(size_t bytes) {
 
     if (remainingBlocks >= 2) {
         // add block to page
-
         ph->blocksUsed++;
         ph->avl = (void *)((uintptr_t)ph->avl - ph->blockSize);
 
         return (ph->avl);
-
     } else if (remainingBlocks == 1) {
         // need to move to a new page
-
         ph->blocksUsed++;
         ph->avl = (void *)((uintptr_t)ph->avl - ph->blockSize);
 
@@ -289,13 +280,10 @@ void *pgalloc(size_t bytes) {
          * before creating a whole new page
          */
         pages[index] = ((PageHeader *)page)->nextPage;
-
         addFullList(page);
 
         return ((PageHeader *)page)->avl;
-
     }
-
 
     // should NEVER get here
     assert(NULL);
@@ -307,12 +295,11 @@ void *pgalloc(size_t bytes) {
  * mainly for debugging purposes
  */
 // cppcheck-suppress unusedFunction
-void pgview(void) {
-
+void pgview(void)
+{
     void *curFullPage = fullPages;
 
     for (int i = 0; i < PAGES; i++) {
-
         void *page = pages[i];
         void *startPage = pages[i];
 
@@ -331,11 +318,8 @@ void pgview(void) {
 
     // print full pages
     while (curFullPage) {
-
         printPage(curFullPage);
-
         curFullPage = ((PageHeader *)curFullPage)->nextPage;
-
         if (curFullPage == fullPages) {
             // made one full cycle
             break;
@@ -346,8 +330,8 @@ void pgview(void) {
 /**
  * helper function to simplify pgview() logic
  */
-static void printPage(void *page) {
-
+static void printPage(void *page)
+{
     PageHeader *ph = (PageHeader *)page;
     void *freeBlock = ph->freeList;
 
@@ -358,14 +342,11 @@ static void printPage(void *page) {
     printf("avl[%p] ", ph->avl);
 
     if (freeBlock) {
-
         printf(" free[");
-
         while (freeBlock) {
             printf("%p ", freeBlock);
             freeBlock = (void *) *((uintptr_t **)freeBlock);
         }
-
         printf("]\n");
     } else {
         printf(" free[]\n");
@@ -375,63 +356,52 @@ static void printPage(void *page) {
 /**
  * adds full pages to the fullPages list
  */
-static void addFullList(void *page) {
-
+static void addFullList(void *page)
+{
     //TODO: clean up - consolidate wasteful declarations
-
     if (fullPages == NULL) {
-
         PageHeader *ph = (PageHeader *)page;
         ph->nextPage = NULL;
         ph->prevPage = NULL;
         ph->freeList = NULL;
 
         fullPages = page;
-
     } else {
-
         PageHeader *headPage = (PageHeader *)fullPages;
         PageHeader *prevPage = NULL;
         PageHeader *ph = (PageHeader *)page;
 
         ph->freeList = NULL;
 
-        if ( (headPage->prevPage) == NULL ) {
+        if ((headPage->prevPage) == NULL) {
             // list only has a single page
             headPage->nextPage = page;
             headPage->prevPage = page;
-
             ph->prevPage = fullPages;
             ph->nextPage = fullPages;
-
         } else {
-
             prevPage = headPage->prevPage;
-
             prevPage->nextPage = page;
             ph->prevPage = prevPage;
             ph->nextPage = fullPages;
             headPage->prevPage = page;
         }
     }
-
 }
 
 /**
  * removes pages from the fullPages list
  * typically when a full page has blocks freed
  */
-static void *removeFullList(void *page) {
-
+static void *removeFullList(void *page)
+{
     PageHeader *ph = (PageHeader *)page;
     PageHeader *nph = (PageHeader *)ph->nextPage;
     PageHeader *pph = (PageHeader *)ph->prevPage;
 
     if (nph != NULL && pph != NULL) {
-
         nph->prevPage = ph->prevPage;
         pph->nextPage = ph->nextPage;
-
     } else if (nph != NULL) {
         nph->prevPage = ph->prevPage;
     } else if (pph != NULL) {
